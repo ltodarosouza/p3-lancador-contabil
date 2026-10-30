@@ -1,0 +1,23 @@
+# Log das cinco mensagens da tutora (M06, M09, M13, M18, M22), processadas pelo sistema em 30/10/2026
+# Servidor local (npm start) com o código do commit f735c7f; a saída abaixo é o log exatamente como o servidor imprimiu, uma linha por chamada.
+# M06, M09 e M13 são do Nilton (C-0417, Completo); M18 e M22 são do Rubens (C-0288, Essencial). Sem mensagens anteriores.
+
+{"mensagem_id":"M06","cliente_id":"C-0417","quando":"2026-10-30T20:18:14.583Z","modelo":"gemini-3.5-flash-lite","status":"ok","duracao_ms":2348,"tokens_entrada":1678,"tokens_saida":237,"custo_brl":0.005941,"preco_usd_por_milhao":{"entrada":0.3,"saida":2.5},"data_preco":"2026-10-28","cambio_brl":5.4212,"data_cambio":"2026-10-30","resultado":"lancou","aviso":false}
+{"mensagem_id":"M09","cliente_id":"C-0417","quando":"2026-10-30T20:18:16.662Z","modelo":"gemini-3.5-flash-lite","status":"ok","duracao_ms":1070,"tokens_entrada":1659,"tokens_saida":156,"custo_brl":0.004812,"preco_usd_por_milhao":{"entrada":0.3,"saida":2.5},"data_preco":"2026-10-28","cambio_brl":5.4212,"data_cambio":"2026-10-30","resultado":"lancou","aviso":false}
+{"mensagem_id":"M13","cliente_id":"C-0417","quando":"2026-10-30T20:18:18.499Z","modelo":"gemini-3.5-flash-lite","status":"ok","duracao_ms":834,"tokens_entrada":1652,"tokens_saida":57,"custo_brl":0.003459,"preco_usd_por_milhao":{"entrada":0.3,"saida":2.5},"data_preco":"2026-10-28","cambio_brl":5.4212,"data_cambio":"2026-10-30","resultado":"nada","aviso":false}
+{"mensagem_id":"M18","cliente_id":"C-0288","quando":"2026-10-30T20:18:20.448Z","modelo":"gemini-3.5-flash-lite","status":"ok","duracao_ms":943,"tokens_entrada":1716,"tokens_saida":79,"custo_brl":0.003862,"preco_usd_por_milhao":{"entrada":0.3,"saida":2.5},"data_preco":"2026-10-28","cambio_brl":5.4212,"data_cambio":"2026-10-30","resultado":"nada","aviso":false}
+{"mensagem_id":"M22","cliente_id":"C-0288","quando":"2026-10-30T20:18:22.800Z","modelo":"gemini-3.5-flash-lite","status":"ok","duracao_ms":1345,"tokens_entrada":1653,"tokens_saida":159,"custo_brl":0.004843,"preco_usd_por_milhao":{"entrada":0.3,"saida":2.5},"data_preco":"2026-10-28","cambio_brl":5.4212,"data_cambio":"2026-10-30","resultado":"lancou","aviso":false}
+
+Conta refeita só com os tokens do log (US$ 0,30 entrada e US$ 2,50 saída por milhão; R$ 5,4212):
+M06: 1678 x 0.3 + 237 x 2.5 = US$ 0.0010959 = R$ 0.005941 | log diz R$ 0.005941 -> bate
+M09: 1659 x 0.3 + 156 x 2.5 = US$ 0.0008877 = R$ 0.004812 | log diz R$ 0.004812 -> bate
+M13: 1652 x 0.3 + 57 x 2.5 = US$ 0.0006381 = R$ 0.003459 | log diz R$ 0.003459 -> bate
+M18: 1716 x 0.3 + 79 x 2.5 = US$ 0.0007123 = R$ 0.003862 | log diz R$ 0.003862 -> bate
+M22: 1653 x 0.3 + 159 x 2.5 = US$ 0.0008934 = R$ 0.004843 | log diz R$ 0.004843 -> bate
+
+soma: entrada 8358, saída 688 | R$ 0.022918 refeito, R$ 0.022917 somando o log
+média por mensagem: R$ 0.004584 (1672 de entrada, 138 de saída)
+entrada responde por 59.3% do custo
+
+Resultado de cada uma (do corpo da resposta): M06 2 lançamentos; M09 1 lançamento; M13 nada (saudação); M18 nada; M22 1 lançamento.
+Limites: cinco mensagens, uma rodada; o servidor foi local, não o da Vercel (o deploy do código novo ainda não foi feito); o preço e o câmbio são os do dia 28 e 30/10/2026.
