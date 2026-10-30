@@ -13,7 +13,7 @@ GET  https://p3-lancador-contabil.vercel.app/            -> 200
 GET  https://p3-lancador-contabil.vercel.app/            -> 200
 POST https://p3-lancador-contabil.vercel.app/api/lancar  -> 200
 Nenhuma requisição foi para generativelanguage.googleapis.com: o navegador só fala com o domínio do projeto, e quem chama o Gemini é o servidor.
-Resposta mostrada na tela: lancamentos [], pendencias [], aviso false, motivo citando a regra 3, tokens entrada 1675 e saída 83 (depois do clique, a tela mostrou 1675 de entrada).
+Resposta mostrada na tela (a captura cortou o fim): lancamentos [], pendencias [], aviso false, motivo citando a regra 3 e tokens de entrada 1675. O número de tokens de saída não apareceu na captura; o 83 que consta acima é da chamada por curl.
 
 ## Também por curl (produção), só com contagens
 página 200 text/html | GET na rota 405 | cliente inexistente 422 | M10 200 com lancamentos []
