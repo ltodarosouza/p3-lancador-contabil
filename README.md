@@ -4,6 +4,8 @@ A mensagem de WhatsApp de um cliente entra, e o sistema devolve o que lançar, o
 
 Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, copiadas sem alterar do material da P3 (fictício e anonimizado).
 
+**No ar:** https://p3-lancador-contabil.vercel.app (página de teste em `/`, rota em `POST /api/lancar`). A chave fica nas variáveis de ambiente da Vercel.
+
 ## Como rodar
 
 ```bash
@@ -50,4 +52,4 @@ Os 10 testes cobrem a validação, a origem do plano do cliente e o caminho da c
 - O histórico de lançamentos aprovados do cliente na chamada. As regras 5 e 7 dizem que "o histórico diz", e a versão atual não o envia, então o modelo devolve pendência onde o histórico resolveria (a Fiorino e o pix para o Marcão, nas evidências).
 - O teto de mensagens por cliente e o custo em reais por mensagem (aula 3.4). Hoje só a contagem de tokens aparece.
 - Os `pendencias` voltam como texto simples; o formato pedido no prompt era um objeto com `pergunta`. Os testes aceitam as duas formas.
-- Evidências do navegador no site publicado: ainda não feitas.
+- Evidências do navegador no site publicado: feitas, em `evidencia/navegador-producao.txt` (busca pela chave na página e aba de rede).

@@ -1,0 +1,20 @@
+# Evidências do navegador, no site publicado: https://p3-lancador-contabil.vercel.app (30/10/2026)
+
+## 1. Busca pelo começo da chave no que a página baixou (executada no navegador, na própria página)
+Padrão procurado: AIza seguido de 6 ou mais caracteres de chave (as chaves do Google começam por AIza).
+Arquivos que a página baixou: só o HTML (4081 bytes). Não há JS, CSS nem JSON externos.
+{ "origem": "https://p3-lancador-contabil.vercel.app",
+  "arquivos_conferidos": [ { "n": "página (HTML)", "bytes": 4081, "ocorrencias_AIza": 0 } ],
+  "storage": { "local": 0, "session": 0, "cookies": 0 } }
+Resultado: 0 ocorrências. Nada guardado no navegador.
+
+## 2. Aba de rede, depois de clicar em "Montar lançamento" (M10 do Nilton, C-0417)
+GET  https://p3-lancador-contabil.vercel.app/            -> 200
+GET  https://p3-lancador-contabil.vercel.app/            -> 200
+POST https://p3-lancador-contabil.vercel.app/api/lancar  -> 200
+Nenhuma requisição foi para generativelanguage.googleapis.com: o navegador só fala com o domínio do projeto, e quem chama o Gemini é o servidor.
+Resposta mostrada na tela: lancamentos [], pendencias [], aviso false, motivo citando a regra 3, tokens entrada 1675 e saída 83 (depois do clique, a tela mostrou 1675 de entrada).
+
+## Também por curl (produção), só com contagens
+página 200 text/html | GET na rota 405 | cliente inexistente 422 | M10 200 com lancamentos []
+Ocorrências do começo da chave na página: 0; "AIza" na página: 0
