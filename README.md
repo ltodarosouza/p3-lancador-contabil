@@ -52,10 +52,41 @@ A primeira chamada (1.666 tokens de entrada, 70 de saída) custaria **R$ 0,0037*
 
 Medido em 8 mensagens reais do Rubens (plano Essencial, R$ 290 por mês): média de 1.663 tokens de entrada e 126 de saída, ou **R$ 0,0044 por mensagem**. Um cliente de 80 mensagens no mês custaria cerca de R$ 0,35 de modelo (0,12% do plano), e um que mandasse 400, cerca de R$ 1,76 (0,6%). Saída crua e limites em `evidencia/custo-essencial-rubens.txt`.
 
+## Custo de cada mensagem, em reais
+
+| Item | Valor | Fonte e data |
+|---|---|---|
+| Modelo | Gemini 3.5 Flash-Lite, plano pago (Standard) | página de preços do Google, atualizada em 28/10/2026 |
+| Preço | US$ 0,30 por milhão de tokens de entrada e US$ 2,50 de saída | idem |
+| Câmbio | R$ 5,4212 (dólar PTAX de venda) | Banco Central, 30/10/2026 |
+| Custo medido | **R$ 0,0044 por mensagem** (média de 1.663 tokens de entrada e 126 de saída, em 8 mensagens do Rubens) | `evidencia/custo-essencial-rubens.txt` |
+| Com o histórico da padaria | R$ 0,0060 (+955 tokens de entrada) | `evidencia/custo-historico-padaria.txt` |
+
+No plano gratuito que o projeto usa hoje o custo real é zero. Os números acima são o que seria no pago, e preço e câmbio mudam.
+
+## Teto por plano
+
+Contado no servidor, por cliente e por mês, **antes** de chamar o modelo (o mês é o do relógio do servidor, não o da requisição). Acima do teto a chamada responde `429` com `{"encaminhar":"fila_manual","motivo":"teto_do_plano",...}`: a mensagem não vai ao modelo, fica na fila para o Tiago olhar à mão, e o log registra que o cliente passou do plano.
+
+| Plano | Teto de mensagens por mês | Motivo | Custo no teto |
+|---|---|---|---|
+| Essencial (até 80 lançamentos) | 160 | 2 mensagens por lançamento: uma mensagem gera 0, 1 ou vários lançamentos, e a pendência pede resposta | R$ 0,71 (0,24% de R$ 290) |
+| Completo (até 250 lançamentos) | 500 | idem | R$ 2,98 (0,61% de R$ 490), contando o histórico da padaria |
+
+Os números 160 e 500 são uma proposta minha, a partir da regra do brief ("ninguém manda muito mais mensagem do que lançamento"). **Quem decide é a Denise.** Limite honesto desta versão: o contador fica na memória de cada instância da função, então vale por instância e se perde quando ela reinicia. Para valer de verdade precisa de armazenamento (banco ou cache); a interface do contador já está separada para trocar sem mexer no resto.
+
+## Log
+
+Uma linha em JSON por chamada, na saída da função (na Vercel, em Logs): `mensagem_id`, `cliente_id`, `quando`, `modelo`, `status` (`ok`, `teto`, `erro_modelo`, `resposta_ilegivel`), `duracao_ms`, `tokens_entrada`, `tokens_saida`, `custo_brl`, o preço usado (`preco_usd_por_milhao`, `data_preco`, `cambio_brl`, `data_cambio`) e `resultado` (`lancou`, `pendencia`, `nada`) com `aviso`. **Fica de fora de propósito:** o texto da mensagem, o lançamento e o motivo devolvidos pelo modelo, nome, telefone, o prompt e a chave. Com o `mensagem_id` se acha o texto no sistema do escritório. Testes: `test/teto.test.js`.
+
+## O limite do provedor
+
+O que a página do Google (rate limits, atualizada em 28/10/2026) diz: o limite é **por projeto, não por chave**, e a cota diária zera à meia-noite no horário do Pacífico. **Os números do `gemini-3.5-flash-lite` não estão na página**: ela manda ver no AI Studio, na conta de quem usa, e eu ainda não os li. Como o limite é do projeto, um cliente que dispara muitas mensagens gasta a cota de todos, e por isso o teto por cliente fica no servidor.
+
 ## O que ainda falta
 
 - A fila de conferência do Tiago e da Aline (a tela) e o eval.
 - O histórico de lançamentos aprovados do cliente na chamada. As regras 5 e 7 dizem que "o histórico diz", e a versão atual não o envia, então o modelo devolve pendência onde o histórico resolveria (a Fiorino e o pix para o Marcão, nas evidências).
-- O teto de mensagens por cliente (aula 3.4).
+- O teto por cliente guardado de verdade: hoje o contador fica na memória de cada instância da função (ver "Teto por plano"). Para valer entre instâncias e reinícios precisa de armazenamento, que ainda não tem.
 - Os `pendencias` voltam como texto simples; o formato pedido no prompt era um objeto com `pergunta`. Os testes aceitam as duas formas.
 - Evidências do navegador no site publicado: feitas, em `evidencia/navegador-producao.txt` (busca pela chave na página e aba de rede).
