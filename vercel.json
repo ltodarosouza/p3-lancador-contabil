@@ -1,3 +1,4 @@
 {
-  "functions": { "api/lancar.js": { "includeFiles": "{lib/**,dados/**,instrucoes.md}" } }
+  "functions": { "api/lancar.js": { "includeFiles": "{lib/**,dados/**,instrucoes.md}" },
+    "api/fila.js": { "includeFiles": "{lib/**,dados/**}" } }
 }

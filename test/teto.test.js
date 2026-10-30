@@ -71,7 +71,8 @@ test("o log também registra o teto e o erro do modelo, sem texto", async () => 
   assert.equal(linhas.at(-1).teto, TETOS.Essencial);
   const caiu = { ...deps, contador: criarContador(), chamarModelo: async () => { throw new Error("falhou SEGREDO-DO-CLIENTE"); } };
   await lancar(msg("C-0417"), caiu);
-  assert.equal(linhas.at(-1).status, "erro_modelo");
+  assert.equal(linhas.at(-1).status, "nao_entendido");
+  assert.equal(linhas.at(-1).motivo, "erro_no_modelo");
   assert.doesNotMatch(JSON.stringify(linhas.at(-1)), /SEGREDO/);
 });
 

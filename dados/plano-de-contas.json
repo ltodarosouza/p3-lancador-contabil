@@ -1,0 +1,167 @@
+[
+ {
+  "codigo": "1.1",
+  "nome": "Venda de mercadorias",
+  "tipo": "receita"
+ },
+ {
+  "codigo": "1.2",
+  "nome": "Prestação de serviços",
+  "tipo": "receita"
+ },
+ {
+  "codigo": "1.3",
+  "nome": "Vendas por aplicativo",
+  "tipo": "receita"
+ },
+ {
+  "codigo": "1.4",
+  "nome": "Devoluções e estornos de receita",
+  "tipo": "receita"
+ },
+ {
+  "codigo": "1.5",
+  "nome": "Outras receitas",
+  "tipo": "receita"
+ },
+ {
+  "codigo": "2.1",
+  "nome": "Mercadorias para revenda",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.2",
+  "nome": "Insumos e matéria-prima",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.3",
+  "nome": "Aluguel e condomínio",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.4",
+  "nome": "Água, luz e gás",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.5",
+  "nome": "Internet e telefone",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.6",
+  "nome": "Salários e encargos",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.7",
+  "nome": "Pró-labore",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.8",
+  "nome": "Impostos e taxas",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.9",
+  "nome": "Tarifas bancárias e de maquininha",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.10",
+  "nome": "Juros e multas",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.11",
+  "nome": "Combustível e transporte",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.12",
+  "nome": "Manutenção e reparos",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.13",
+  "nome": "Material de uso e consumo",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.14",
+  "nome": "Marketing e anúncios",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.15",
+  "nome": "Serviços de terceiros",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.16",
+  "nome": "Software e assinaturas",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.17",
+  "nome": "Alimentação da equipe",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.18",
+  "nome": "Fretes e entregas",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.19",
+  "nome": "Uniformes e EPI",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.20",
+  "nome": "Honorários contábeis",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "2.21",
+  "nome": "Outras despesas",
+  "tipo": "despesa"
+ },
+ {
+  "codigo": "3.1",
+  "nome": "Aporte de sócio",
+  "tipo": "movimento"
+ },
+ {
+  "codigo": "3.2",
+  "nome": "Retirada de sócio e distribuição de lucro",
+  "tipo": "movimento"
+ },
+ {
+  "codigo": "3.3",
+  "nome": "Empréstimo recebido",
+  "tipo": "movimento"
+ },
+ {
+  "codigo": "3.4",
+  "nome": "Parcela de empréstimo",
+  "tipo": "movimento"
+ },
+ {
+  "codigo": "3.5",
+  "nome": "Compra de equipamento e móveis",
+  "tipo": "movimento"
+ },
+ {
+  "codigo": "3.6",
+  "nome": "Transferência entre contas da própria empresa",
+  "tipo": "movimento"
+ },
+ {
+  "codigo": "9.1",
+  "nome": "A esclarecer. Não é lançamento: é uma pendência na fila, com o que falta perguntar. Não vai para o arquivo. Vira lançamento quando o cliente responder.",
+  "tipo": "pendencia"
+ }
+]

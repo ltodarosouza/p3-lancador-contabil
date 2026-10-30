@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fila de conferência — Prado Contabilidade</title>
+<style>
+  :root { color-scheme: light dark; --fundo: #f6f7f4; --papel: #fff; --tinta: #1d2b24; --suave: #5c6b63; --linha: #d9dfd9; --acento: #1f6b4f; --aviso: #8a5a00; --erro: #a8281e; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #131a16; --papel: #1b241f; --tinta: #e8efe9; --suave: #9fb0a6; --linha: #2c3a32; --acento: #5fc79b; --aviso: #e0b050; --erro: #f08a80; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--tinta); font: 16px/1.55 system-ui, sans-serif; }
+  main { width: min(100% - 32px, 960px); margin: 32px auto 64px; display: grid; gap: 16px; }
+  h1 { font-size: 24px; margin: 0; } h2 { font-size: 16px; margin: 0; }
+  p { margin: 0; color: var(--suave); }
+  .resumo { display: flex; flex-wrap: wrap; gap: 8px; }
+  .resumo span, .marca { font-size: 13px; padding: 2px 10px; border-radius: 99px; border: 1px solid var(--linha); background: var(--papel); }
+  .marca.aviso { color: var(--aviso); border-color: var(--aviso); font-weight: 600; }
+  .item { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 16px; display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .item { grid-template-columns: 1fr 1fr; } }
+  .item .topo { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  blockquote { margin: 0; padding: 12px; border-left: 3px solid var(--linha); background: var(--fundo); border-radius: 0 8px 8px 0; overflow-wrap: anywhere; }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 14px; }
+  dt { color: var(--suave); } dd { margin: 0; overflow-wrap: anywhere; }
+  .acoes { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+  input, select, button { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--linha); background: var(--papel); color: var(--tinta); min-height: 40px; }
+  input { width: 9.5rem; }
+  button { background: var(--acento); color: #fff; border-color: transparent; font-weight: 600; cursor: pointer; }
+  button.sec { background: var(--papel); color: var(--tinta); border-color: var(--linha); }
+  button:disabled { opacity: .55; cursor: progress; }
+  .erro { color: var(--erro); font-weight: 600; grid-column: 1 / -1; }
+  :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Fila de conferência</h1>
+  <p>Lançamentos para aprovar ou corrigir, perguntas prontas e o que o sistema não conseguiu ler, cada um com a mensagem original ao lado.</p>
+  <div class="resumo" id="resumo"></div>
+  <div id="lista" style="display:grid;gap:12px"></div>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const NOME = { lancamento: "Lançamento", pendencia: "Pergunta ao cliente", nao_entendido: "Não entendido" };
+  const ESTADO = { aguardando: "aguardando", aprovado: "aprovado", corrigido: "corrigido" };
+  const MOTIVO = { validacao: "o que o modelo devolveu não passou na conferência", resposta_cortada: "a resposta veio cortada", limite_do_provedor: "o provedor pediu para esperar e não liberou", bloqueada_pelo_provedor: "o provedor bloqueou a resposta", resposta_ilegivel: "a resposta não veio no formato", pedido_recusado: "o provedor recusou o pedido", erro_no_modelo: "erro ao falar com o modelo", teto_do_plano: "o cliente passou do limite de mensagens do plano" };
+  const el = (tag, texto, cls) => { const e = document.createElement(tag); if (texto !== undefined) e.textContent = texto; if (cls) e.className = cls; return e; };
+  const reais = (v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  async function agir(corpo, itemEl, botoes) {
+    botoes.forEach((b) => (b.disabled = true)); // o clique duplo não aprova duas vezes
+    const r = await fetch("/api/fila", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...corpo, quem: "tiago" }) });
+    const c = await r.json();
+    if (!r.ok) {
+      botoes.forEach((b) => (b.disabled = false));
+      let e = itemEl.querySelector(".erro") || itemEl.appendChild(el("p", "", "erro"));
+      e.textContent = "Não salvou: " + (c.erro === "correcao_invalida" ? "a correção não passou na conferência (" + c.detalhes.map((d) => d.campo).join(", ") + ")." : "tente de novo (" + c.erro + ").");
+      return;
+    }
+    carregar();
+  }
+
+  function desenhar(i) {
+    const item = el("article", undefined, "item");
+    const topo = el("div", undefined, "topo");
+    topo.append(el("h2", NOME[i.tipo]), el("span", i.cliente_id + (i.mensagem_id ? " · " + i.mensagem_id : ""), "marca"), el("span", ESTADO[i.estado], "marca"));
+    if (i.aviso) topo.append(el("span", "ler com atenção", "marca aviso"));
+    if (i.lancamento?.data_assumida) topo.append(el("span", "data assumida", "marca aviso"));
+    item.append(topo);
+    const orig = el("blockquote"); orig.append(el("p", "Mensagem original"), el("div", i.mensagem)); item.append(orig);
+    const dir = el("div");
+    if (i.tipo === "lancamento") {
+      const l = i.lancamento, dl = el("dl");
+      [["Data", l.data], ["Tipo", l.tipo], ["Categoria", l.categoria], ["Valor", reais(l.valor)], ["Forma", l.forma], ["Com quem", l.contraparte || "—"], ["Descrição", l.descricao || "—"]].forEach(([k, v]) => dl.append(el("dt", k), el("dd", v)));
+      dir.append(dl);
+    } else if (i.tipo === "pendencia") dir.append(el("p", "Pergunta pronta para mandar ao cliente:"), el("div", i.pergunta));
+    else dir.append(el("p", "Motivo:"), el("div", MOTIVO[i.motivo] || i.motivo));
+    item.append(dir);
+    if (i.tipo === "lancamento" && i.estado === "aguardando") {
+      const acoes = el("div", undefined, "acoes");
+      const campos = {};
+      [["data", "Data (AAAA-MM-DD)"], ["valor", "Valor"], ["categoria", "Categoria"], ["forma", "Forma"]].forEach(([k, rotulo]) => {
+        const lab = el("label"); lab.append(el("span", rotulo, "marca"));
+        const inp = el("input"); inp.placeholder = String(i.lancamento[k]); campos[k] = inp; lab.append(inp); acoes.append(lab);
+      });
+      const aprovar = el("button", "Aprovar"), corrigir = el("button", "Corrigir e salvar", "sec");
+      aprovar.onclick = () => agir({ id: i.id, acao: "aprovar" }, item, [aprovar, corrigir]);
+      corrigir.onclick = () => {
+        const mudou = {}; for (const [k, inp] of Object.entries(campos)) if (inp.value.trim()) mudou[k] = k === "valor" ? Number(inp.value.replace(",", ".")) : inp.value.trim();
+        agir({ id: i.id, acao: "corrigir", campos: mudou }, item, [aprovar, corrigir]);
+      };
+      acoes.append(aprovar, corrigir); item.append(acoes);
+    }
+    if (i.correcao) item.append(el("p", "Corrigido por " + i.correcao.por + ": " + Object.entries(i.correcao.campos).map(([k, v]) => k + " " + v.de + " → " + v.para).join("; ")));
+    return item;
+  }
+
+  async function carregar() {
+    const c = await (await fetch("/api/fila")).json();
+    $("resumo").replaceChildren(...Object.entries(c.resumo).flatMap(([tipo, estados]) => Object.entries(estados).map(([e, n]) => el("span", NOME[tipo] + " · " + e + ": " + n))));
+    $("lista").replaceChildren(...(c.itens.length ? c.itens.map(desenhar) : [el("p", "A fila está vazia.")]));
+  }
+  carregar();
+</script>
+</body>
+</html>

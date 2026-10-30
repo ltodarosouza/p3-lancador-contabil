@@ -52,17 +52,18 @@ test("mensagens anteriores entram como contexto, e mais de cinco são recusadas"
 test("resposta boa devolve lançamentos, pendências, aviso, motivo e a contagem de tokens", async () => {
   const r = await lancar(base, { chamarModelo: modeloFalso() });
   assert.equal(r.status, 200);
-  assert.deepEqual(r.corpo, { lancamentos: [], pendencias: [], aviso: false, motivo: "regra 3", tokens: { entrada: 1666, saida: 70 } });
+  assert.deepEqual(r.corpo, { resultado: "nada", lancamentos: [], pendencias: [], aviso: false, motivo: "regra 3", tokens: { entrada: 1666, saida: 70 } });
 });
 
-test("modelo fora do ar ou resposta que não é JSON: 502 sem despejar o erro", async () => {
+test("modelo fora do ar ou resposta que não é JSON: a mensagem vai para a fila como não entendido, sem despejar o erro", async () => {
   const caiu = await lancar(base, { chamarModelo: modeloFalso(new Error(`falhou com ${CHAVE_FALSA}`)) });
-  assert.equal(caiu.status, 502);
-  assert.equal(caiu.corpo.erro, "modelo_indisponivel");
+  assert.equal(caiu.status, 200);
+  assert.equal(caiu.corpo.resultado, "nao_entendido");
+  assert.equal(caiu.corpo.nao_entendido.motivo, "erro_no_modelo");
   assert.doesNotMatch(JSON.stringify(caiu.corpo), new RegExp(CHAVE_FALSA));
   const torto = await lancar(base, { chamarModelo: modeloFalso({ texto: "não sou json", tokens: {} }) });
-  assert.equal(torto.status, 502);
-  assert.equal(torto.corpo.erro, "resposta_ilegivel");
+  assert.equal(torto.corpo.resultado, "nao_entendido");
+  assert.equal(torto.corpo.nao_entendido.motivo, "resposta_ilegivel");
 });
 
 // A rota inteira, com a rede trocada por uma função falsa: a chave vai no cabeçalho e não volta em nenhuma resposta.
