@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lançador — Prado Contabilidade</title>
+<style>
+  :root { color-scheme: light dark; --fundo: #f6f7f4; --papel: #fff; --tinta: #1d2b24; --suave: #5c6b63; --linha: #d9dfd9; --acento: #1f6b4f; --aviso: #8a5a00; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #131a16; --papel: #1b241f; --tinta: #e8efe9; --suave: #9fb0a6; --linha: #2c3a32; --acento: #5fc79b; --aviso: #e0b050; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--tinta); font: 16px/1.55 system-ui, sans-serif; }
+  main { width: min(100% - 32px, 640px); margin: 32px auto 64px; display: grid; gap: 16px; }
+  h1 { font-size: 24px; margin: 0; letter-spacing: -.01em; }
+  p { margin: 0; color: var(--suave); }
+  form, section { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+  label { font-size: 14px; font-weight: 600; display: grid; gap: 4px; }
+  select, textarea, button { font: inherit; border-radius: 8px; border: 1px solid var(--linha); padding: 10px 12px; background: var(--papel); color: var(--tinta); }
+  textarea { min-height: 96px; resize: vertical; }
+  button { background: var(--acento); color: #fff; border-color: transparent; font-weight: 600; cursor: pointer; min-height: 44px; }
+  button:disabled { opacity: .6; cursor: progress; }
+  pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.5 ui-monospace, monospace; }
+  .aviso { color: var(--aviso); font-weight: 600; }
+  :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lançador</h1>
+  <p>Escolha o cliente, cole a mensagem dele e veja o lançamento que o sistema monta. Só mensagens de exemplo: nada daqui é dado de cliente de verdade.</p>
+  <form id="form">
+    <label>Cliente
+      <select id="cliente">
+        <option value="C-0417">C-0417 · Padaria Sabor de Trigo</option>
+        <option value="C-0288">C-0288 · Oficina do Rubens</option>
+        <option value="C-0533">C-0533 · Studio Vida Pilates</option>
+        <option value="C-0601">C-0601 · Jé Modas</option>
+      </select>
+    </label>
+    <label>Mensagem
+      <textarea id="mensagem" required maxlength="1000">comprei uma geladeira nova pro balcão 3x de 1.166,67 no cartão primeira parcela cai dia 20</textarea>
+    </label>
+    <label>Enviada em
+      <input id="recebida" type="datetime-local" value="2026-10-13T16:22" required style="font:inherit;border:1px solid var(--linha);border-radius:8px;padding:10px 12px;background:var(--papel);color:var(--tinta)">
+    </label>
+    <button id="enviar" type="submit">Montar lançamento</button>
+  </form>
+  <section id="saida" hidden aria-live="polite">
+    <p id="estado"></p>
+    <pre id="resultado"></pre>
+  </section>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  $("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("enviar").disabled = true;
+    $("saida").hidden = false;
+    $("estado").textContent = "Montando o lançamento…";
+    $("resultado").textContent = "";
+    try {
+      const r = await fetch("/api/lancar", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ cliente_id: $("cliente").value, mensagem: $("mensagem").value, recebida_em: $("recebida").value + ":00-03:00" }),
+      });
+      const corpo = await r.json();
+      $("estado").textContent = r.ok
+        ? (corpo.lancamentos.length === 0 && corpo.pendencias.length === 0 ? "Nenhum lançamento para esta mensagem." : "Lançamento montado, para conferir.")
+        : "Não deu para montar agora. Tente de novo.";
+      $("estado").className = corpo.aviso ? "aviso" : "";
+      $("resultado").textContent = JSON.stringify(corpo, null, 2);
+    } catch {
+      $("estado").textContent = "Sem conexão com o servidor. Tente de novo.";
+    }
+    $("enviar").disabled = false;
+  });
+</script>
+</body>
+</html>

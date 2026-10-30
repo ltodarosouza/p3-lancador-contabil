@@ -1,0 +1,10 @@
+{
+  "name": "p3-lancador-contabil",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lançador da P3: a mensagem de WhatsApp do cliente vira lançamento contábil para o Tiago e a Aline conferirem.",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/lancador.test.js"
+  }
+}

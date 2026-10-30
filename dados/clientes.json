@@ -1,0 +1,6 @@
+[
+  { "codigo": "C-0417", "empresa": "Padaria Sabor de Trigo", "quem_manda": "Nilton", "plano": "Completo", "regime": "Simples Nacional" },
+  { "codigo": "C-0288", "empresa": "Oficina do Rubens", "quem_manda": "Rubens", "plano": "Essencial", "regime": "Simples Nacional" },
+  { "codigo": "C-0533", "empresa": "Studio Vida Pilates", "quem_manda": "Camila", "plano": "Essencial", "regime": "Simples Nacional" },
+  { "codigo": "C-0601", "empresa": "Jé Modas", "quem_manda": "Jéssica", "plano": "Essencial", "regime": "MEI" }
+]

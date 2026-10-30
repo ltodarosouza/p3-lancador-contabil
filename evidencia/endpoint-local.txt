@@ -1,0 +1,34 @@
+# Endpoint local (npm start), duas mensagens seguidas do mesmo cliente (C-0417)
+
+$ curl -s -X POST $U/api/lancar  # 1ª: M03, 03/10/2026 18:05
+{
+    "lancamentos": [],
+    "pendencias": [
+        "Nilton, o Pix de 450 para o Marc\u00e3o foi referente a qu\u00ea?"
+    ],
+    "aviso": true,
+    "motivo": "Pagamento avulso a pessoa f\u00edsica sem nota \u00e9 pend\u00eancia, conforme a regra 5. Como o valor foi para uma pessoa f\u00edsica (Marc\u00e3o) sem justificativa clara no hist\u00f3rico, gera pend\u00eancia e aviso.",
+    "tokens": {
+        "entrada": 1651,
+        "saida": 102
+    }
+}
+
+$ curl -s -X POST $U/api/lancar  # 2ª: M05, 05/10/2026 09:34, com a 1ª como contexto
+{
+    "lancamentos": [],
+    "pendencias": [
+        "Nilton, a Fiorino que voc\u00ea abasteceu \u00e9 da empresa?"
+    ],
+    "aviso": true,
+    "motivo": "Regra 7: Combust\u00edvel e manuten\u00e7\u00e3o de ve\u00edculo s\u00f3 \u00e9 despesa se o ve\u00edculo for da empresa. Como o hist\u00f3rico n\u00e3o deixa isso claro, gerou pend\u00eancia com aviso.",
+    "tokens": {
+        "entrada": 1701,
+        "saida": 91
+    }
+}
+
+$ cliente que não existe
+{"erro":"cliente_desconhecido"} [422]
+$ GET na rota
+{"erro":"use_post"} [405]

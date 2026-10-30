@@ -1,0 +1,11 @@
+$ node chamada-teste.js   # M10 do Nilton, 13/10/2026
+modelo: gemini-3.5-flash-lite | status: 200
+--- texto que voltou ---
+{
+  "lancamentos": [],
+  "pendencias": [],
+  "aviso": false,
+  "motivo": "Não gerou lançamento pois a primeira parcela cai em data futura (dia 20), e a regra 3 diz que nada com data futura entra e o resto não existe até cair."
+}
+--- contagem de tokens ---
+{"promptTokenCount":1666,"candidatesTokenCount":70,"totalTokenCount":1736,"promptTokensDetails":[{"modality":"TEXT","tokenCount":1666}],"serviceTier":"standard"}
