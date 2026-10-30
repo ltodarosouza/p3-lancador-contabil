@@ -64,7 +64,7 @@ Medido em 8 mensagens reais do Rubens (plano Essencial, R$ 290 por mês): média
 
 No plano gratuito que o projeto usa hoje o custo real é zero. Os números acima são o que seria no pago, e preço e câmbio mudam.
 
-Cinco mensagens escolhidas pela tutora (M06, M09, M13, M18, M22), processadas pelo sistema, com o log cru e a conta refeita só com os tokens: média de **R$ 0,0046 por mensagem** (1.672 tokens de entrada e 138 de saída), e a entrada responde por 59% do custo. A saudação (M13) custou R$ 0,0035, quase o mesmo que um lançamento (R$ 0,0048): sem lançamento, o custo é quase todo o pacote fixo de regras. Ver `evidencia/log-cinco-mensagens.txt`.
+Cinco mensagens escolhidas pela tutora (M06, M09, M13, M18, M22), processadas pelo sistema, com o log cru e a conta refeita só com os tokens: média de **R$ 0,0046 por mensagem** (1.672 tokens de entrada e 138 de saída), e a entrada responde por 59% do custo. A saudação (M13) custou R$ 0,0035, de 58% a 72% do custo de uma chamada com lançamento (R$ 0,0048 a R$ 0,0059): sem lançamento só cai a parte de saída, e o custo é quase todo o pacote fixo do prompt. Esse pacote tem 1.586 tokens, cerca de 95% da entrada: as 15 regras da casa (801), o plano de contas (581) e o formato da resposta (204). Medido com a contagem de tokens do Gemini em `evidencia/prompt-por-parte.txt`. Ver `evidencia/log-cinco-mensagens.txt`.
 
 ## Teto por plano
 

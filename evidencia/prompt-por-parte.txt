@@ -1,0 +1,16 @@
+# Quanto pesa cada parte fixa do prompt — 30/10/2026
+
+Medido pedindo ao Gemini (modelo gemini-3.5-flash-lite, rota countTokens) para contar os tokens de cada parte, separadamente:
+  regras da casa (15 regras, de instrucoes.md):          801 tokens
+  plano de contas (de instrucoes.md):                    581 tokens
+  formato da resposta + instruções (de lib/lancador.js): 204 tokens
+  soma do pacote fixo:                                  1.586 tokens
+
+No log das cinco mensagens (evidencia/log-cinco-mensagens.txt) a entrada foi de 1.652 a 1.716 tokens, média 1.672.
+  Sobra, para a linha do cliente, a mensagem e as aspas: de 66 a 130 tokens (média 86), 5% da entrada.
+  Participação na entrada média: regras 47,9% | plano de contas 34,7% | formato 12,2% | cliente e mensagem 5,1%.
+
+Como sei isso: o log sozinho só mostra que a entrada quase não muda de uma mensagem para outra (variação de 64 tokens), ou seja, o que muda é pequeno. Quem separa regras, plano e formato é a contagem de tokens de cada parte, feita à parte.
+Limites: as partes foram contadas separadas, então a soma pode diferir em alguns tokens do prompt montado inteiro; uma medição só.
+
+Comparação de custo, do mesmo log: a saudação M13 (R$ 0,003459) é 58% do M06 (R$ 0,005941), 72% do M09 (R$ 0,004812) e 71% do M22 (R$ 0,004843).
