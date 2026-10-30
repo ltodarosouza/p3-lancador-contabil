@@ -1,0 +1,16 @@
+# Custo do histórico: o cliente pesado da padaria (C-0417) — 30/10/2026
+
+Como medi, sem chutar: peguei o histórico de lançamentos aprovados da padaria no material da P3 (mensagens.md, bloco "C-0417 Padaria Sabor de Trigo": 27 linhas, 1.688 caracteres) e pedi ao próprio Gemini para contar os tokens, pela rota countTokens do modelo gemini-3.5-flash-lite.
+Resposta crua: 200 {"totalTokens":955,"promptTokensDetails":[{"modality":"TEXT","tokenCount":955}]}
+Ou seja, 955 tokens de histórico, cerca de 35,4 tokens por linha.
+
+Conta (preço pago de 28/10/2026: US$ 0,30 entrada e US$ 2,50 saída por milhão; PTAX de venda 30/10/2026, R$ 5,4212):
+  sem histórico (média do Rubens: 1.663 de entrada, 126 de saída):  R$ 0,00441 por mensagem
+  com o histórico da padaria (1.663 + 955 = 2.618 de entrada):     R$ 0,00597 por mensagem  (+35%)
+  padaria com 250 mensagens no mês: R$ 1,49 (0,30% dos R$ 490 do Completo)
+  padaria com 500 mensagens no mês: R$ 2,98 (0,61%)
+
+Projeção, ESTIMADA e não medida: se o histórico crescer em linha reta, um cliente de 250 lançamentos por mês com 3 meses de histórico teria 750 linhas, cerca de 26.500 tokens por chamada.
+  R$ 0,0476 por mensagem; 250 mensagens no mês: R$ 11,89 (2,4% de R$ 490); 500 mensagens: R$ 23,78 (4,9%).
+
+Limites: o histórico do material é uma amostra de cerca de 3 meses de um cliente; a saída da padaria foi suposta igual à do Rubens (126 tokens); a projeção é extrapolação linear. O número de mensagens por mês tem que vir da exportação real de cada cliente.
