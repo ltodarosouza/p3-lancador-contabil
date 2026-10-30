@@ -1,0 +1,19 @@
+# Custo da primeira chamada (M10 do Nilton), em reais — calculado em 30/10/2026
+
+Tokens medidos na chamada (evidencia/chamada-1-m10.txt): entrada 1.666, saída 70. Não apareceu contagem de tokens de raciocínio.
+
+Preço: Gemini 3.5 Flash-Lite, plano pago (Standard), por 1 milhão de tokens, em dólar:
+  entrada (texto) US$ 0,30 | saída (inclui raciocínio) US$ 2,50
+  Fonte: https://ai.google.dev/gemini-api/docs/pricing, página atualizada em 2026-10-28 UTC. Sem faixa por tamanho do prompt.
+Câmbio: dólar PTAX de venda de 2026-10-30, R$ 5,42120 (Banco Central, serviço Olinda; cotação das 13h04).
+
+Conta:
+  entrada: 1.666 x 0,30 / 1.000.000 = US$ 0,0004998
+  saída:     70 x 2,50 / 1.000.000 = US$ 0,0001750
+  total: US$ 0,0006748 x 5,42120 = R$ 0,003658  (cerca de 0,37 centavo por mensagem)
+
+O que pesa: a entrada é 74,1% do custo, mesmo com cada token de saída custando 8,3 vezes mais.
+5.000 mensagens por mês, todas do mesmo tamanho: cerca de R$ 18,29 por mês, só de modelo.
+No plano gratuito que o projeto usa hoje, o custo real é R$ 0. O valor acima é o que seria no plano pago.
+Limites desta conta: é uma mensagem só, o tamanho muda com a mensagem e com o histórico que ainda não vai na chamada,
+e o preço e o câmbio mudam; refazer com a data de cada consulta.

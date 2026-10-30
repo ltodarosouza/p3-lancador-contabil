@@ -46,10 +46,14 @@ O provedor é o Gemini, no plano gratuito, escolhido para não gastar nada nesta
 
 Os 10 testes cobrem a validação, a origem do plano do cliente e o caminho da chave. Para ver se eles pegam erro de verdade, quebrei o código de quatro jeitos e cada um fez exatamente um teste falhar: plano vindo da requisição, chave na URL, erro do modelo devolvido e cliente desconhecido aceito. **Os testes não provam que o modelo lança certo**: para isso precisa de um eval com casos e um número, que ainda não existe. Só rodei três mensagens reais.
 
+## Custo por mensagem
+
+A primeira chamada (1.666 tokens de entrada, 70 de saída) custaria **R$ 0,0037** no plano pago do Gemini 3.5 Flash-Lite (US$ 0,30 por milhão de entrada e US$ 2,50 de saída, página do Google atualizada em 28/10/2026; dólar PTAX de venda de 30/10/2026, R$ 5,4212). Cerca de 74% é a entrada, o pacote fixo de regras. Para 5.000 mensagens por mês do mesmo tamanho: cerca de R$ 18,29. No plano gratuito que o projeto usa hoje, o custo é zero. Conta completa em `evidencia/custo-primeira-chamada.txt`.
+
 ## O que ainda falta
 
 - A fila de conferência do Tiago e da Aline (a tela) e o eval.
 - O histórico de lançamentos aprovados do cliente na chamada. As regras 5 e 7 dizem que "o histórico diz", e a versão atual não o envia, então o modelo devolve pendência onde o histórico resolveria (a Fiorino e o pix para o Marcão, nas evidências).
-- O teto de mensagens por cliente e o custo em reais por mensagem (aula 3.4). Hoje só a contagem de tokens aparece.
+- O teto de mensagens por cliente (aula 3.4).
 - Os `pendencias` voltam como texto simples; o formato pedido no prompt era um objeto com `pergunta`. Os testes aceitam as duas formas.
 - Evidências do navegador no site publicado: feitas, em `evidencia/navegador-producao.txt` (busca pela chave na página e aba de rede).
