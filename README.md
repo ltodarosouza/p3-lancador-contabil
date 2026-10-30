@@ -50,6 +50,8 @@ Os 10 testes cobrem a validação, a origem do plano do cliente e o caminho da c
 
 A primeira chamada (1.666 tokens de entrada, 70 de saída) custaria **R$ 0,0037** no plano pago do Gemini 3.5 Flash-Lite (US$ 0,30 por milhão de entrada e US$ 2,50 de saída, página do Google atualizada em 28/10/2026; dólar PTAX de venda de 30/10/2026, R$ 5,4212). Cerca de 74% é a entrada, o pacote fixo de regras. Para 5.000 mensagens por mês do mesmo tamanho: cerca de R$ 18,29. No plano gratuito que o projeto usa hoje, o custo é zero. Conta completa em `evidencia/custo-primeira-chamada.txt`.
 
+Medido em 8 mensagens reais do Rubens (plano Essencial, R$ 290 por mês): média de 1.663 tokens de entrada e 126 de saída, ou **R$ 0,0044 por mensagem**. Um cliente de 80 mensagens no mês custaria cerca de R$ 0,35 de modelo (0,12% do plano), e um que mandasse 400, cerca de R$ 1,76 (0,6%). Saída crua e limites em `evidencia/custo-essencial-rubens.txt`.
+
 ## O que ainda falta
 
 - A fila de conferência do Tiago e da Aline (a tela) e o eval.

@@ -1,0 +1,25 @@
+# Custo de um cliente do plano Essencial, medido com as mensagens do Rubens (C-0288) — 30/10/2026
+
+Origem: as 8 mensagens de texto do Rubens em outubro, do material da P3 (mensagens.md), sem as linhas de mídia.
+Cada uma foi enviada, uma por vez e sem mensagens anteriores, ao endpoint publicado https://p3-lancador-contabil.vercel.app/api/lancar.
+Saída crua (tokens que o próprio Gemini devolveu):
+
+M15 entrada 1668 saída 178 | lançamentos 1 pendências 0 aviso False
+M16 entrada 1648 saída 145 | lançamentos 1 pendências 0 aviso False
+M17 entrada 1651 saída 154 | lançamentos 1 pendências 0 aviso False
+M18 entrada 1716 saída 72 | lançamentos 0 pendências 0 aviso False
+M19 entrada 1647 saída 83 | lançamentos 0 pendências 1 aviso True
+M20 entrada 1659 saída 145 | lançamentos 1 pendências 0 aviso False
+M21 entrada 1659 saída 71 | lançamentos 0 pendências 1 aviso False
+M22 entrada 1653 saída 157 | lançamentos 1 pendências 0 aviso False
+
+média: entrada 1663 tokens, saída 126 tokens
+preço: US$ 0,30 (entrada) e US$ 2,50 (saída) por milhão, plano pago do Gemini 3.5 Flash-Lite, página do Google de 28/10/2026; PTAX de venda de 30/10/2026, R$ 5,4212
+custo médio por mensagem: US$ 0,0008128 = R$ 0,00441
+
+Preço do Essencial no brief: R$ 290 por mês, até 80 lançamentos.
+  80 mensagens no mês:  R$ 0,35 (0,12% de R$ 290)
+ 160 mensagens no mês:  R$ 0,71 (0,24%)
+ 400 mensagens no mês:  R$ 1,76 (0,61%), o cliente que manda 400 do exemplo do brief
+
+Limites: 8 mensagens de um cliente só, de um material fictício; sem foto de nota nem áudio; sem o histórico do cliente na chamada, que vai aumentar a entrada; só o custo do modelo, sem hospedagem nem o tempo do Tiago e da Aline.
