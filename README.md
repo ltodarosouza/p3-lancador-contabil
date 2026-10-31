@@ -137,7 +137,7 @@ O texto que o cliente escreveu (contraparte e descrição) passa por três cuida
 
 A fila, o contador de uso, as mensagens barradas e o custo do mês ficam num armazém (`lib/armazem.js`). Sem configuração é a memória da instância (testes e `npm start`). Com `KV_REST_API_URL` e `KV_REST_API_TOKEN` no ambiente (ou `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN`), é um Redis por HTTP, e aí a fila e o contador valem entre as funções da Vercel e depois de reiniciar. Dois cliques em instâncias diferentes não aprovam o mesmo item duas vezes (o item é fechado com `SET ... NX`), e o contador conta com `INCR`, atômico, desfazendo a contagem da mensagem que o teto barrou.
 
-**O que está provado e o que não está.** O mesmo teste de contrato roda na memória e num Redis de mentira que fala o protocolo REST do Upstash (`test/armazem.test.js`): duas instâncias sobre o mesmo armazém veem a mesma fila, só uma aprovação vale, e o contador não passa do teto. Quebrei o `SET NX` e a desfeita da contagem, e um teste falhou em cada. **Eu não conectei isto a um Redis de verdade**: não existe nenhum provisionado para este projeto. Quando existir, `vercel env pull .env.local && node scripts/prova-armazem.js` roda o mesmo contrato (e as duas instâncias da fila e do contador) contra ele, com um prefixo só do script, e apaga o que gravou. Enquanto isso não for feito, o site publicado seguiria com a fila na memória de cada função, e as funções `/api/lancar` e `/api/fila` não dividiriam a mesma fila.
+**O que está provado e o que não está.** O mesmo teste de contrato roda na memória e num Redis de mentira que fala o protocolo REST do Upstash (`test/armazem.test.js`): duas instâncias sobre o mesmo armazém veem a mesma fila, só uma aprovação vale, e o contador não passa do teto. Quebrei o `SET NX` e a desfeita da contagem, e um teste falhou em cada. **Depois, conectei a um Redis de verdade.** Em 31/10/2026 o Lucas criou um Redis no Upstash, ligado ao projeto na Vercel, e `node scripts/prova-armazem.js` rodou o mesmo contrato contra ele (inclusive duas instâncias da fila e do contador sobre o mesmo Redis): terminou em `ok`, com um prefixo só do script, e apagou o que gravou. Para repetir: `vercel env pull .env.local && node scripts/prova-armazem.js`. **O que ainda não foi visto:** o site publicado usando esse Redis, porque o código novo não foi publicado; hoje o site no ar é a versão anterior, com a fila na memória de cada função.
 
 ## O que o sistema nunca faz sozinho
 
@@ -277,7 +277,6 @@ O que a página do Google (rate limits, atualizada em 28/10/2026) diz: o limite 
 ## O que ainda falta
 
 - **Publicar a versão nova.** O site no ar roda a anterior. Só com pedido do Lucas.
-- **Um Redis de verdade.** O armazém está pronto e testado contra um Redis de mentira; falta provisionar um (por exemplo o Upstash pela Marketplace da Vercel) e registrar `KV_REST_API_URL` e `KV_REST_API_TOKEN` no ambiente, junto com `CHAVE_TIAGO`, `CHAVE_ALINE` e `CHAVE_DENISE`. Registrar chave é ação do Lucas, não minha.
 - **Login de verdade** (conta e senha por usuário) para o escritório. Hoje são três chaves de ambiente.
 - **A Denise aprovar o gabarito do eval** e responder as lacunas (`eval/lacunas-para-a-denise.md`); até lá a nota é provisória.
 - **Foto da nota e transcrição de áudio**: fora, com o motivo em `inventario.md`.

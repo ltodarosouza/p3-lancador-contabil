@@ -50,7 +50,7 @@ Do que o brief pede, conferido no código e nos testes (suíte: 116 testes, sem 
 - **Teto por plano**: 160 mensagens no Essencial e 500 no Completo (duas por lançamento do plano, de 80 e 250), proposta minha que a Denise ainda não decidiu. A mensagem barrada não vai ao modelo e fica na fila manual.
 - **Painel da Denise** (`/painel`, só com a chave dela): mensagens, custo do mês e quem passou do teto, a partir do que o sistema contou.
 - **Custo por mensagem em reais**, dos tokens registrados: R$ 0,00485 sem histórico e R$ 0,00495 com, preço de 28/10/2026, câmbio de 30/10/2026. O log tem uma linha por chamada e não leva o texto da mensagem.
-- **Fila e contador num armazém** (memória, ou Redis por HTTP quando o ambiente traz as variáveis). Duas instâncias sobre o mesmo armazém veem a mesma fila e o item só fecha uma vez. **Provado só contra um Redis de mentira que fala o protocolo do Upstash; não conectei um Redis de verdade.**
+- **Fila e contador num armazém** (memória, ou Redis por HTTP quando o ambiente traz as variáveis). Duas instâncias sobre o mesmo armazém veem a mesma fila e o item só fecha uma vez. **Provado contra um Redis de mentira que fala o protocolo do Upstash e, em 31/10/2026, contra o Redis de verdade (Upstash, ligado ao projeto na Vercel) com `scripts/prova-armazem.js`. O site publicado usando esse Redis ainda não foi visto.**
 - **Isolamento entre clientes na chamada** e **histórico conferido do cliente na chamada** (só o que uma pessoa aprovou ou corrigiu, no máximo 60 linhas).
 - **Provas hostis** no Gemini real: a injeção respondeu `nada` (agora esse `nada` chega à fila); HTML e script aparecem como texto.
 - **Eval**: 23 casos, 20 contam na nota, 3 fora da nota esperando a Denise. O gabarito é meu, ninguém da casa o aprovou. Depois do conserto da regra 1, a única rodada limpa deu 19 de 20 (E05 e E23 passaram); as outras bateram no limite diário do provedor. Detalhe em "Eval" no README.
@@ -62,8 +62,8 @@ Do que o brief pede, conferido no código e nos testes (suíte: 116 testes, sem 
 Só o que depende de outra pessoa; o que dependia só do código está na parte 2.
 
 1. **Publicar a versão nova** e rodar o exemplo do README contra o site no ar. Só quando o Lucas pedir.
-2. **Provisionar um Redis e registrar as variáveis**: `KV_REST_API_URL` e `KV_REST_API_TOKEN`, mais `CHAVE_TIAGO`, `CHAVE_ALINE` e `CHAVE_DENISE`, no ambiente da Vercel. Registrar chave é ação do Lucas. Sem isso o site no ar não teria fila compartilhada entre funções, e a fila ficaria fechada (503) por falta das chaves.
-3. **Rodar o mesmo teste de contrato contra o Redis de verdade**, depois do item 2, para trocar "provado contra um Redis de mentira" por "provado".
+2. **Ver o sistema no ar usando o Redis e as chaves** (já registrados na Vercel em 31/10/2026): só depois da publicação.
+3. **Rodar o `curl` do README contra o endereço no ar**, quando a cota do Gemini permitir.
 4. **A Denise decidir**: o teto de 160 e 500 mensagens, as quatro lacunas do eval (`eval/lacunas-para-a-denise.md`) e aprovar o gabarito.
 
 ## 4. O que fica de fora, com o motivo
