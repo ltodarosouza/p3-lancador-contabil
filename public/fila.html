@@ -52,7 +52,7 @@
 <script>
   const $ = (id) => document.getElementById(id);
   const NOME = { lancamento: "Lançamento", pendencia: "Pergunta ao cliente", nao_entendido: "Não entendido" };
-  const ESTADO = { aguardando: "aguardando", aprovado: "aprovado", corrigido: "corrigido" };
+  const ESTADO = { aguardando: "aguardando", aprovado: "aprovado", corrigido: "corrigido", devolvido: "mandado de volta" };
   const MOTIVO = { validacao: "o que o modelo devolveu não passou na conferência", resposta_cortada: "a resposta veio cortada", limite_do_provedor: "o provedor pediu para esperar e não liberou", bloqueada_pelo_provedor: "o provedor bloqueou a resposta", resposta_ilegivel: "a resposta não veio no formato", pedido_recusado: "o provedor recusou o pedido", erro_no_modelo: "erro ao falar com o modelo", teto_do_plano: "o cliente passou do limite de mensagens do plano" };
   const el = (tag, texto, cls) => { const e = document.createElement(tag); if (texto !== undefined) e.textContent = texto; if (cls) e.className = cls; return e; };
   const reais = (v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -110,14 +110,20 @@
         const lab = el("label"); lab.append(el("span", rotulo, "marca"));
         const inp = el("input"); inp.placeholder = String(i.lancamento[k]); campos[k] = inp; lab.append(inp); acoes.append(lab);
       });
-      const aprovar = el("button", "Aprovar"), corrigir = el("button", "Corrigir e salvar", "sec");
-      aprovar.onclick = () => agir({ id: i.id, acao: "aprovar" }, item, [aprovar, corrigir]);
+      const motivo = el("input"); motivo.placeholder = "Motivo, se mandar de volta"; motivo.style.width = "14rem";
+      const aprovar = el("button", "Aprovar"), corrigir = el("button", "Corrigir e salvar", "sec"), devolver = el("button", "Mandar de volta", "sec");
+      aprovar.onclick = () => agir({ id: i.id, acao: "aprovar" }, item, [aprovar, corrigir, devolver]);
+      devolver.onclick = () => {
+        if (!motivo.value.trim()) { falhas.set(i.id, "Não salvou: diga o motivo para mandar de volta."); return carregar(); }
+        agir({ id: i.id, acao: "devolver", motivo: motivo.value.trim() }, item, [aprovar, corrigir, devolver]);
+      };
       corrigir.onclick = () => {
         const mudou = {}; for (const [k, inp] of Object.entries(campos)) if (inp.value.trim()) mudou[k] = k === "valor" ? Number(inp.value.replace(",", ".")) : inp.value.trim();
-        agir({ id: i.id, acao: "corrigir", campos: mudou }, item, [aprovar, corrigir]);
+        agir({ id: i.id, acao: "corrigir", campos: mudou }, item, [aprovar, corrigir, devolver]);
       };
-      acoes.append(aprovar, corrigir); item.append(acoes);
+      acoes.append(motivo, aprovar, corrigir, devolver); item.append(acoes);
     }
+    if (i.devolucao) item.append(el("p", "Mandado de volta por " + i.devolucao.por + ": " + i.devolucao.motivo));
     if (i.correcao) item.append(el("p", "Corrigido por " + i.correcao.por + ": " + Object.entries(i.correcao.campos).map(([k, v]) => k + " " + v.de + " → " + v.para).join("; ")));
     if (falhas.has(i.id)) estado(item, falhas.get(i.id), "falhou");
     else if (salvoAgora === i.id) estado(item, "Salvo.", "salvo");

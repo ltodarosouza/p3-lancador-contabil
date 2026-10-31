@@ -106,3 +106,33 @@ test("o resumo conta por tipo e por estado", async () => {
   await fila.aprovar(id, "tiago");
   assert.deepEqual(await fila.resumo(), { lancamento: { aprovado: 1 }, nao_entendido: { aguardando: 1 } });
 });
+
+test("mandar de volta fecha o lançamento com o motivo e quem mandou, e ele não vira histórico nem arquivo", async () => {
+  const { fila, id } = await comItem();
+  const d = await fila.devolver(id, "o valor não bate com a nota", "aline");
+  assert.equal(d.estado, "devolvido");
+  assert.deepEqual({ ...d.devolucao, em: undefined }, { motivo: "o valor não bate com a nota", por: "aline", em: undefined });
+  assert.equal(d.devolucao.em, "2026-10-30T23:00:00.000Z");
+  assert.equal(d.resolvido_por, "aline");
+  assert.equal(d.mensagem, base.mensagem, "a mensagem original continua junto");
+  assert.deepEqual(await fila.aprovados("C-0417"), [], "devolvido não é histórico conferido");
+  assert.deepEqual(await fila.conferidos(), [], "nem vai para o arquivo");
+  assert.equal(await erroDe(() => fila.aprovar(id, "tiago")), "ja_resolvido");
+  assert.equal(await erroDe(() => fila.devolver(id, "outra vez", "tiago")), "ja_resolvido");
+});
+
+test("mandar de volta pede um motivo, e só vale para lançamento que aguarda", async () => {
+  const { fila, id } = await comItem();
+  for (const motivo of [undefined, "", "   ", 42, "x".repeat(301)]) assert.equal(await erroDe(() => fila.devolver(id, motivo, "tiago")), "motivo_obrigatorio", String(motivo).slice(0, 10));
+  assert.equal((await fila.obter(id)).estado, "aguardando", "nada mudou");
+  const f2 = criarFila();
+  await lancar(base, { chamarModelo: async () => { throw new Error("x"); }, fila: f2 });
+  assert.equal(await erroDe(async () => f2.devolver((await f2.listar())[0].id, "x", "tiago")), "so_lancamento_se_devolve");
+  assert.equal(await erroDe(() => fila.devolver("F-9999", "x", "tiago")), "item_inexistente");
+});
+
+test("o resumo conta o devolvido como um estado a mais", async () => {
+  const { fila, id } = await comItem();
+  await fila.devolver(id, "confere com o cliente", "tiago");
+  assert.deepEqual(await fila.resumo(), { lancamento: { devolvido: 1 } });
+});

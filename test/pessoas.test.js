@@ -91,3 +91,18 @@ test("a resposta de erro nunca repete a chave nem diz qual das chaves quase bate
   const r = await chamar(fila, { chave: ENV.CHAVE_ALINE.slice(0, -1) + "9" });
   assert.doesNotMatch(JSON.stringify(r.corpo), /chave-de-teste/);
 });
+
+test("mandar de volta também respeita o corte: o Tiago não devolve item da Aline, e quem devolveu vem da chave", async () => {
+  const fila = await filaComTudo();
+  const daAline = (await fila.listar()).find((i) => i.cliente_id === "C-0533" && i.tipo === "lancamento");
+  const dele = (await fila.listar()).find((i) => i.cliente_id === "C-0417" && i.tipo === "lancamento");
+  const barrado = await chamar(fila, { metodo: "POST", chave: ENV.CHAVE_TIAGO, corpo: { id: daAline.id, acao: "devolver", motivo: "x" } });
+  assert.equal(barrado.status, 404);
+  assert.equal((await fila.obter(daAline.id)).estado, "aguardando");
+  const ok = await chamar(fila, { metodo: "POST", chave: ENV.CHAVE_TIAGO, corpo: { id: dele.id, acao: "devolver", motivo: "confere com o cliente", por: "denise" } });
+  assert.equal(ok.status, 200);
+  assert.equal(ok.corpo.item.devolucao.por, "tiago");
+  const semMotivo = await chamar(fila, { metodo: "POST", chave: ENV.CHAVE_ALINE, corpo: { id: daAline.id, acao: "devolver" } });
+  assert.equal(semMotivo.status, 400);
+  assert.equal(semMotivo.corpo.erro, "motivo_obrigatorio");
+});
