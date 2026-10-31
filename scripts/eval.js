@@ -23,6 +23,7 @@ const dorme = (ms) => new Promise((ok) => setTimeout(ok, ms));
   for (const c of casos) {
     const esperado = c.esperado ?? (comHist ? c.esperado_com_historico : c.esperado_sem_historico);
     const logs = [];
+    // o log cru de cada chamada, uma linha por chamada, vai para evidencia/eval-<rótulo>.log.jsonl
     const r = await lancar({ cliente_id: c.cliente_id, mensagem: c.mensagem, recebida_em: c.recebida_em, mensagem_id: c.id }, { chamarModelo: chamar, esperar, log: (l) => logs.push(l), historico: comHist ? () => c.historico ?? [] : undefined });
     const corpo = r.corpo;
     let estado, dif = [];
@@ -32,6 +33,8 @@ const dorme = (ms) => new Promise((ok) => setTimeout(ok, ms));
     const nome = clientes.find((x) => x.codigo === c.cliente_id).quem_manda;
     const perguntas = (corpo.pendencias || []).map((p) => ({ pergunta: p.pergunta, problemas: perguntaMecanica(p.pergunta, nome) }));
     const lg = logs[0] || {};
+    fs.mkdirSync("evidencia", { recursive: true });
+    for (const l of logs) fs.appendFileSync(`evidencia/eval-${rotulo}.log.jsonl`, JSON.stringify(l) + "\n");
     linhas.push({ id: c.id, tipo: c.tipo, conta: c.conta_na_nota, estado, diferencas: dif, perguntas, tokens_entrada: lg.tokens_entrada, tokens_saida: lg.tokens_saida, custo_brl: lg.custo_brl, historico_linhas: lg.historico_linhas ?? 0 });
     await dorme(pausa);
   }
