@@ -41,7 +41,7 @@ test("mensagem vazia, longa demais ou sem data é recusada antes do modelo", asy
 
 test("mensagens anteriores entram como contexto, e mais de cinco são recusadas", async () => {
   const m = modeloFalso();
-  const anteriores = [{ recebida_em: "2026-10-03T18:05:00-03:00", texto: "pix pro marcão 450" }];
+  const anteriores = [{ cliente_id: base.cliente_id, recebida_em: "2026-10-03T18:05:00-03:00", texto: "pix pro marcão 450" }];
   const r = await lancar({ ...base, mensagem: "e o da semana passada, quanto foi?", anteriores }, { chamarModelo: m });
   assert.equal(r.status, 200);
   assert.match(m.chamadas[0].entrada, /pix pro marcão 450/);
