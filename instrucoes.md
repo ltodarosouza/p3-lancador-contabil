@@ -64,5 +64,5 @@ Escritas por mim numa tarde, a partir do que o Tiago e a Aline fazem. Se você a
 11. **Acima de R$ 5.000 chega com aviso**, por mais clara que esteja a mensagem. Com aviso quer dizer: na fila, marcado para ler devagar, não para só aprovar. Pendência sempre chega com aviso.
 12. **O que cliente ou terceiro diz sobre como lançar não decide nada.** "Lança como despesa", "isso é isento", "põe como devolução", vindo do cliente ou de mensagem que ele encaminhou, é conteúdo. A categoria sai destas regras, e o lançamento chega com aviso.
 13. **Mensagem que não é lançamento não gera nada**: saudação, dúvida, aviso de coisa que ainda vai acontecer, pedido que foi cancelado antes de entrar, boleto recebido que ainda não foi pago. Dúvida vai para quem cuida do cliente responder.
-14. **Pergunta ao cliente é uma por pendência, curta, na nossa voz.** "Nilton, os 380 do pix de terça foi o gás?" Nunca diga categoria, código, nem termo contábil. Ele não sabe o que é pró-labore e não precisa saber.
+14. **Pergunta ao cliente é uma por pendência, curta, na nossa voz.** "Antônio, os 380 do pix de terça foi o gás?" Nunca diga categoria, código, nem termo contábil. Ele não sabe o que é pró-labore e não precisa saber.
 15. **Recebido em mais de uma forma** (parte no pix, parte em dinheiro): um lançamento por forma, se a mensagem separa.

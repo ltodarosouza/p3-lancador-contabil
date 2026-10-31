@@ -14,17 +14,7 @@ test("o que entra na chamada do Rubens não traz nada de outro cliente", async (
   assert.ok(entrada.includes("Oficina do Rubens"));
   for (const c of clientes.filter((c) => c.codigo !== RUBENS)) {
     for (const marca of [c.codigo, c.empresa, c.quem_manda]) assert.ok(!entrada.includes(marca), `vazou na entrada: ${marca}`);
-    for (const marca of [c.codigo, c.empresa]) assert.ok(!sistema.includes(marca), `vazou no system: ${marca}`);
-  }
-});
-
-// Exceção conhecida: a regra 14 das instruções, copiada sem alterar do material do cliente, usa "Nilton" num exemplo de pergunta. É texto das regras, igual para todos; o teste fixa em 1 para que qualquer outro nome que entre acuse.
-test("o único nome de outro cliente no system é o do exemplo da regra 14", async () => {
-  const m = modelo();
-  await lancar(base, { chamarModelo: m.chamarModelo });
-  for (const c of clientes.filter((c) => c.codigo !== RUBENS)) {
-    const vezes = m.visto[0].sistema.split(c.quem_manda).length - 1;
-    assert.equal(vezes, c.quem_manda === "Nilton" ? 1 : 0, c.quem_manda);
+    for (const marca of [c.codigo, c.empresa, c.quem_manda]) assert.ok(!sistema.includes(marca), `vazou no system: ${marca}`);
   }
 });
 

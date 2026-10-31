@@ -10,7 +10,7 @@ Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, cop
 
 ```bash
 cp .env.example .env        # depois preencha GEMINI_API_KEY no .env; o .env está no .gitignore
-npm test                    # 59 testes, sem rede e sem chave
+npm test                    # 58 testes, sem rede e sem chave
 npm start                   # http://localhost:3000; a fila fica em /fila
 ```
 
@@ -73,7 +73,11 @@ O modelo só devolve um texto em JSON; ele não tem função nenhuma para chamar
 
 **Achado: o `nada` some.** Resposta `nada` não entra na fila, então uma mensagem hostil, ou uma compra futura como a geladeira da M10, passa sem ninguém ver; é o mesmo risco de um lançamento errado sem conferência. Decisão proposta (ainda **não implementada**, quem decide é a Denise): `nada` com mensagem não vazia entra na fila como item só de leitura ("sem lançamento"), com o motivo do modelo, para o Tiago dar uma olhada e dispensar.
 
-**Ressalvas:** o `system` carrega o nome "Nilton" num exemplo da regra 14 (texto do cliente, igual para todos; o teste fixa em 1 ocorrência). A rota `/api/fila` não tem login, então a trava vale tanto quanto a autenticação, que ainda não existe. A fila é uma só, sem separar por cliente. 
+**O nome "Nilton" nas regras.** O teste de isolamento achou o nome de um cliente de verdade no exemplo da regra 14, que vai no `system` de toda chamada. Primeiro eu afrouxei o teste com uma exceção para ele passar, e isso foi um erro: o teste está certo em acusar. Voltei o teste ao rigoroso (ficou vermelho) e troquei o nome no exemplo por um fictício, "Antônio", que não é de nenhum cliente. **Esta é a única alteração que fiz no texto de `instrucoes.md`**, que o resto é cópia do material; só mudou o nome dentro do exemplo, não a regra.
+
+**Pendência antes de publicar:** a rota de aprovar (`POST /api/fila`) não tem login. A trava de "só pessoa aprova" vale tanto quanto a autenticação, que ainda não existe.
+
+**Ressalvas:** A rota `/api/fila` não tem login, então a trava vale tanto quanto a autenticação, que ainda não existe. A fila é uma só, sem separar por cliente. 
 
 ## A chave do modelo
 
