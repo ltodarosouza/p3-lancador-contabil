@@ -11,7 +11,7 @@ const rodar = async (mensagem, lancamento = LANC) => {
     { cliente_id: "C-0417", mensagem, recebida_em: "2026-10-14T10:00:00-03:00", mensagem_id: "M60" },
     { chamarModelo: async () => ({ texto: JSON.stringify({ lancamentos: [lancamento], pendencias: [], aviso: false, motivo: "x" }), tokens: { entrada: 1, saida: 1 } }), fila },
   );
-  return { r, item: fila.listar()[0] };
+  return { r, item: (await fila.listar())[0] };
 };
 
 test("mensagem sem data: o código marca data_assumida, mesmo com o modelo devolvendo false", async () => {

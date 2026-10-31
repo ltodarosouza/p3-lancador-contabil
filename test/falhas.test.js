@@ -28,12 +28,12 @@ test("falha 1, saída inválida: vai para a fila como não entendido, com a mens
   assert.deepEqual(r.corpo.lancamentos, []);
   assert.ok(r.corpo.nao_entendido.detalhes.length >= 3, "categoria, valor e data apontados");
   assert.equal(contagem.chamadas, 1, "o modelo foi chamado uma vez só: não repete o que voltou inteiro e inválido");
-  const itens = fila.listar();
+  const itens = await fila.listar();
   assert.equal(itens.length, 1);
   assert.equal(itens[0].tipo, "nao_entendido");
   assert.equal(itens[0].mensagem, base.mensagem, "a mensagem original vai junto");
   assert.equal(itens[0].estado, "aguardando");
-  assert.equal(fila.listar({ tipo: "lancamento" }).length, 0, "nenhum lançamento nasceu");
+  assert.equal((await fila.listar({ tipo: "lancamento" })).length, 0, "nenhum lançamento nasceu");
 });
 
 // Falha 2: erro 429 simulado.
@@ -44,7 +44,7 @@ test("falha 2, 429: espera com tempo crescente e tenta de novo; se passar, segue
   assert.equal(contagem.chamadas, 3);
   assert.equal(esperas.length, 2);
   assert.ok(esperas[1] > esperas[0], "a segunda espera é maior que a primeira");
-  assert.equal(fila.listar({ tipo: "lancamento" }).length, 1);
+  assert.equal((await fila.listar({ tipo: "lancamento" })).length, 1);
 });
 
 test("falha 2, 429 que não passa: depois de poucas tentativas a mensagem vai para a fila, e não fica repetindo", async () => {
@@ -53,7 +53,7 @@ test("falha 2, 429 que não passa: depois de poucas tentativas a mensagem vai pa
   assert.equal(r.corpo.nao_entendido.motivo, "limite_do_provedor");
   assert.equal(contagem.chamadas, 3, "três tentativas, não mais");
   assert.equal(esperas.length, 2);
-  assert.equal(fila.listar({ tipo: "nao_entendido" })[0].mensagem, base.mensagem);
+  assert.equal((await fila.listar({ tipo: "nao_entendido" }))[0].mensagem, base.mensagem);
 });
 
 // Falha 3: corte pelo limite de saída.
@@ -63,7 +63,7 @@ test("falha 3, corte no limite de saída: não repete (cortaria no mesmo ponto) 
   assert.equal(r.corpo.nao_entendido.motivo, "resposta_cortada");
   assert.equal(contagem.chamadas, 1);
   assert.equal(esperas.length, 0);
-  assert.equal(fila.listar({ tipo: "nao_entendido" }).length, 1);
+  assert.equal((await fila.listar({ tipo: "nao_entendido" })).length, 1);
 });
 
 test("só a falha transitória é repetida: bloqueio e pedido recusado vão direto para a fila", async () => {

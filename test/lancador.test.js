@@ -130,7 +130,7 @@ test("lançamento sem valor vira pendência com uma pergunta, não 'não entendi
   assert.equal(r.corpo.pendencias.length, 1);
   assert.match(r.corpo.pendencias[0].pergunta, /Camila/);
   assert.equal(r.corpo.aviso, true);
-  assert.deepEqual(fila.listar().map((i) => i.tipo), ["pendencia"]);
+  assert.deepEqual((await fila.listar()).map((i) => i.tipo), ["pendencia"]);
 });
 
 test("valor ausente com pendência do modelo: fica a pergunta do modelo, sem duplicar", async () => {

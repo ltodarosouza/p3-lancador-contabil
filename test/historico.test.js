@@ -62,13 +62,13 @@ test("o log diz quantas linhas de histórico entraram, e não o texto delas", as
 test("a fila entrega como histórico só o que uma pessoa conferiu: aprovado e corrigido, do cliente", async () => {
   const fila = criarFila();
   const L = { data: "2026-10-12", tipo: "despesa", categoria: "2.4", valor: 380, forma: "pix", contraparte: "", descricao: "luz", data_assumida: false };
-  const a = fila.adicionar({ cliente_id: "C-0417", mensagem: "x", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: L });
-  const b = fila.adicionar({ cliente_id: "C-0417", mensagem: "y", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: { ...L, valor: 99 } });
-  fila.adicionar({ cliente_id: "C-0417", mensagem: "z", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: { ...L, valor: 1 } });
-  fila.adicionar({ cliente_id: "C-0288", mensagem: "w", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: L });
-  fila.aprovar(a, "Tiago");
-  fila.corrigir(b, { valor: 100 }, "Aline");
-  const h = fila.aprovados("C-0417");
+  const a = await fila.adicionar({ cliente_id: "C-0417", mensagem: "x", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: L });
+  const b = await fila.adicionar({ cliente_id: "C-0417", mensagem: "y", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: { ...L, valor: 99 } });
+  await fila.adicionar({ cliente_id: "C-0417", mensagem: "z", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: { ...L, valor: 1 } });
+  await fila.adicionar({ cliente_id: "C-0288", mensagem: "w", recebida_em: base.recebida_em, tipo: "lancamento", aviso: false, lancamento: L });
+  await fila.aprovar(a, "Tiago");
+  await fila.corrigir(b, { valor: 100 }, "Aline");
+  const h = await fila.aprovados("C-0417");
   assert.deepEqual(h.map((l) => l.valor).sort((x, y) => x - y), [100, 380]);
   assert.ok(h.every((l) => l.cliente_id === "C-0417"));
 });

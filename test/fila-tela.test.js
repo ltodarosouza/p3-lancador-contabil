@@ -8,7 +8,7 @@ const { FalhaDoModelo, MOTIVO_DA_FALHA, O_QUE_FAZER } = require("../lib/falhas")
 
 const corpo = { cliente_id: "C-0417", mensagem: "paguei 380 de luz pelo pix", recebida_em: "2026-10-14T10:00:00-03:00", mensagem_id: "M70" };
 const falhando = (tipo) => async () => { throw new FalhaDoModelo(tipo, "x"); };
-const rodar = async (chamarModelo) => { const fila = criarFila(); await lancar(corpo, { chamarModelo, fila, esperar: async () => {} }); return fila.listar()[0]; };
+const rodar = async (chamarModelo) => { const fila = criarFila(); await lancar(corpo, { chamarModelo, fila, esperar: async () => {} }); return (await fila.listar())[0]; };
 
 test("429 que não passa: o item diz quantas vezes tentou e o que o Tiago faz", async () => {
   const i = await rodar(falhando("transitoria"));

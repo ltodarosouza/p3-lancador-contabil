@@ -17,5 +17,5 @@ const { criarFila } = require("../lib/fila");
   console.log("== O QUE ENTROU NA CHAMADA (entrada; o system são as regras e o plano, iguais para todos)\n" + chamada?.entrada);
   console.log("\n== RESPOSTA DO SISTEMA (status " + r.status + ")\n" + JSON.stringify({ ...r.corpo, tokens: undefined }, null, 1));
   console.log("\n== LOG (a linha que o sistema escreve)\n" + log.map((l) => JSON.stringify(l)).join("\n"));
-  console.log("\n== FILA\n" + JSON.stringify(fila.listar().map(({ id, tipo, estado, aviso, lancamento, pergunta, motivo }) => ({ id, tipo, estado, aviso, lancamento, pergunta, motivo })), null, 1));
+  console.log("\n== FILA\n" + JSON.stringify((await fila.listar()).map(({ id, tipo, estado, aviso, lancamento, pergunta, motivo }) => ({ id, tipo, estado, aviso, lancamento, pergunta, motivo })), null, 1));
 })();

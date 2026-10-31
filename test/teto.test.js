@@ -35,9 +35,9 @@ test("um cliente que estourou o teto não atrapalha os outros", async () => {
 test("o teto é do plano: o Completo aguenta mais que o Essencial, e o mês seguinte zera", async () => {
   assert.ok(TETOS.Completo > TETOS.Essencial);
   const c = criarContador();
-  for (let i = 0; i < 3; i++) assert.equal(c.tentar("C-1", "2026-10", 3).permitido, true);
-  assert.equal(c.tentar("C-1", "2026-10", 3).permitido, false);
-  assert.equal(c.tentar("C-1", "2026-11", 3).permitido, true, "outro mês, outra conta");
+  for (let i = 0; i < 3; i++) assert.equal((await c.tentar("C-1", "2026-10", 3)).permitido, true);
+  assert.equal((await c.tentar("C-1", "2026-10", 3)).permitido, false);
+  assert.equal((await c.tentar("C-1", "2026-11", 3)).permitido, true, "outro mês, outra conta");
 });
 
 test("o teto conta pelo relógio do servidor, não pela data que a requisição diz", async () => {

@@ -10,13 +10,13 @@ const resposta = (o) => async () => ({ texto: JSON.stringify(o), tokens: { entra
 async function comItem(mudanca = {}) {
   const fila = criarFila({ agora: () => new Date("2026-10-30T20:00:00-03:00") });
   await lancar(base, { chamarModelo: resposta({ lancamentos: [{ ...CERTO, ...mudanca }], pendencias: [], aviso: false, motivo: "regra 1" }), fila });
-  return { fila, id: fila.listar()[0].id };
+  return { fila, id: (await fila.listar())[0].id };
 }
-const erroDe = (fn) => { try { fn(); } catch (e) { return e.erro; } return "sem erro"; };
+const erroDe = async (fn) => { try { await fn(); } catch (e) { return e.erro; } return "sem erro"; };
 
 test("um lançamento certo entra na fila como item a conferir, com a mensagem original e a marca de data assumida", async () => {
   const { fila } = await comItem();
-  const [i] = fila.listar();
+  const [i] = (await fila.listar());
   assert.equal(i.tipo, "lancamento");
   assert.equal(i.estado, "aguardando");
   assert.equal(i.mensagem, base.mensagem);
@@ -30,16 +30,16 @@ test("pendência vira item próprio, sempre com aviso, e aceita a pergunta como 
     const r = await lancar(base, { chamarModelo: resposta({ lancamentos: [], pendencias, aviso: false, motivo: "regra 5" }), fila });
     assert.equal(r.corpo.resultado, "pendencia");
     assert.deepEqual(r.corpo.pendencias, [{ pergunta: "Nilton, o pix de 450 foi do quê?" }]);
-    assert.equal(fila.listar({ tipo: "pendencia" })[0].aviso, true);
+    assert.equal((await fila.listar({ tipo: "pendencia" }))[0].aviso, true);
     assert.equal(r.corpo.aviso, true);
   }
 });
 
 test("regra 11: acima de R$ 5.000 chega com aviso, mesmo que o modelo não tenha marcado", async () => {
   const { fila } = await comItem({ valor: 5000.01 });
-  assert.equal(fila.listar()[0].aviso, true);
+  assert.equal((await fila.listar())[0].aviso, true);
   const { fila: f2 } = await comItem({ valor: 5000 });
-  assert.equal(f2.listar()[0].aviso, false, "exatamente 5.000 não passa de 5.000");
+  assert.equal((await f2.listar())[0].aviso, false, "exatamente 5.000 não passa de 5.000");
 });
 
 test("regra 11: o aviso da resposta também sobe acima de R$ 5.000, e o log registra", async () => {
@@ -55,21 +55,21 @@ test("mensagem que não é lançamento não gera nada na fila", async () => {
   const fila = criarFila();
   const r = await lancar({ ...base, mensagem: "bom dia denise" }, { chamarModelo: resposta({ lancamentos: [], pendencias: [], aviso: false, motivo: "regra 13" }), fila });
   assert.equal(r.corpo.resultado, "nada");
-  assert.equal(fila.listar().length, 0);
+  assert.equal((await fila.listar()).length, 0);
 });
 
 test("aprovar muda o estado e não aprova duas vezes", async () => {
   const { fila, id } = await comItem();
-  const a = fila.aprovar(id, "tiago");
+  const a = await fila.aprovar(id, "tiago");
   assert.equal(a.estado, "aprovado");
   assert.equal(a.resolvido_por, "tiago");
-  assert.equal(erroDe(() => fila.aprovar(id, "tiago")), "ja_resolvido", "o clique duplo");
-  assert.equal(erroDe(() => fila.corrigir(id, { valor: 1 }, "tiago")), "ja_resolvido");
+  assert.equal(await erroDe(() => fila.aprovar(id, "tiago")), "ja_resolvido", "o clique duplo");
+  assert.equal(await erroDe(() => fila.corrigir(id, { valor: 1 }, "tiago")), "ja_resolvido");
 });
 
 test("corrigir troca a data assumida, guarda de/para, quem e quando, e tira a marca de assumida", async () => {
   const { fila, id } = await comItem();
-  const c = fila.corrigir(id, { data: "2026-10-05" }, "aline");
+  const c = await fila.corrigir(id, { data: "2026-10-05" }, "aline");
   assert.equal(c.estado, "corrigido");
   assert.equal(c.lancamento.data, "2026-10-05");
   assert.equal(c.lancamento.data_assumida, false);
@@ -82,27 +82,27 @@ test("corrigir troca a data assumida, guarda de/para, quem e quando, e tira a ma
 test("a correção também passa pela validação: não dá para corrigir para uma data futura ou categoria que não existe", async () => {
   const { fila, id } = await comItem();
   for (const campos of [{ data: "2026-10-20" }, { categoria: "9.9" }, { valor: -1 }, { forma: "cheque" }]) {
-    const e = (() => { try { fila.corrigir(id, campos, "tiago"); } catch (x) { return x; } })();
+    const e = await (async () => { try { await fila.corrigir(id, campos, "tiago"); } catch (x) { return x; } })();
     assert.equal(e.erro, "correcao_invalida", JSON.stringify(campos));
     assert.ok(e.detalhes.length >= 1);
   }
-  assert.equal(fila.obter(id).estado, "aguardando", "nada mudou");
-  assert.equal(erroDe(() => fila.corrigir(id, {}, "tiago")), "nada_para_corrigir");
-  assert.equal(erroDe(() => fila.corrigir(id, { quem: "x" }, "tiago")), "nada_para_corrigir", "campo que não se corrige é ignorado");
+  assert.equal((await fila.obter(id)).estado, "aguardando", "nada mudou");
+  assert.equal(await erroDe(() => fila.corrigir(id, {}, "tiago")), "nada_para_corrigir");
+  assert.equal(await erroDe(() => fila.corrigir(id, { quem: "x" }, "tiago")), "nada_para_corrigir", "campo que não se corrige é ignorado");
 });
 
 test("não entendido é item próprio: não se aprova nem se corrige como lançamento", async () => {
   const fila = criarFila();
   await lancar(base, { chamarModelo: async () => { throw new Error("x"); }, fila });
-  const id = fila.listar({ tipo: "nao_entendido" })[0].id;
-  assert.equal(erroDe(() => fila.aprovar(id, "tiago")), "so_lancamento_se_aprova");
-  assert.equal(erroDe(() => fila.corrigir(id, { valor: 1 }, "tiago")), "so_lancamento_se_corrige");
-  assert.equal(erroDe(() => fila.aprovar("F-9999", "tiago")), "item_inexistente");
+  const id = (await fila.listar({ tipo: "nao_entendido" }))[0].id;
+  assert.equal(await erroDe(() => fila.aprovar(id, "tiago")), "so_lancamento_se_aprova");
+  assert.equal(await erroDe(() => fila.corrigir(id, { valor: 1 }, "tiago")), "so_lancamento_se_corrige");
+  assert.equal(await erroDe(() => fila.aprovar("F-9999", "tiago")), "item_inexistente");
 });
 
 test("o resumo conta por tipo e por estado", async () => {
   const { fila, id } = await comItem();
   await lancar(base, { chamarModelo: async () => { throw new Error("x"); }, fila });
-  fila.aprovar(id, "tiago");
-  assert.deepEqual(fila.resumo(), { lancamento: { aprovado: 1 }, nao_entendido: { aguardando: 1 } });
+  await fila.aprovar(id, "tiago");
+  assert.deepEqual(await fila.resumo(), { lancamento: { aprovado: 1 }, nao_entendido: { aguardando: 1 } });
 });
