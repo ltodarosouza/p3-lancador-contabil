@@ -5,6 +5,6 @@
   "description": "Lançador da P3: a mensagem de WhatsApp do cliente vira lançamento contábil para o Tiago e a Aline conferirem.",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test test/lancador.test.js test/teto.test.js test/validar.test.js test/falhas.test.js test/fila.test.js test/data-assumida.test.js test/fila-tela.test.js test/isolamento.test.js test/eval.test.js test/historico.test.js test/armazem.test.js"
+    "test": "node --test test/lancador.test.js test/teto.test.js test/validar.test.js test/falhas.test.js test/fila.test.js test/data-assumida.test.js test/fila-tela.test.js test/isolamento.test.js test/eval.test.js test/historico.test.js test/armazem.test.js test/pessoas.test.js"
   }
 }

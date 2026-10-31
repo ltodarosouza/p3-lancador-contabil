@@ -44,3 +44,11 @@ test("o clique mostra salvando e salvo, e a falha de gravação devolve o item a
   assert.match(pagina, /falhas\.has\(y\.id\) - falhas\.has\(x\.id\)/);
   assert.match(pagina, /catch \{ r = \{ ok: false \}/); // servidor fora do ar não deixa os botões travados
 });
+
+test("a tela entra com a chave da pessoa no cabeçalho e não manda mais 'quem' no corpo", () => {
+  const pagina = fs.readFileSync(path.join(__dirname, "..", "public", "fila.html"), "utf8");
+  assert.match(pagina, /authorization: "Bearer "/);
+  assert.match(pagina, /type="password"/);
+  assert.doesNotMatch(pagina, /quem: "/);
+  assert.doesNotMatch(pagina, /localStorage/, "a chave fica só na aba, não no navegador para sempre");
+});

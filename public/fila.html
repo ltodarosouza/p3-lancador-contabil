@@ -37,6 +37,11 @@
 <main>
   <h1>Fila de conferência</h1>
   <p>Lançamentos para aprovar ou corrigir, perguntas prontas e o que o sistema não conseguiu ler, cada um com a mensagem original ao lado.</p>
+  <form id="entrada" class="acoes" autocomplete="off">
+    <label><span class="marca">Sua chave</span> <input id="chave" type="password" style="width:16rem" required></label>
+    <button>Entrar</button>
+    <p id="quem"></p>
+  </form>
   <div class="resumo" id="resumo"></div>
   <div id="lista" style="display:grid;gap:12px"></div>
 </main>
@@ -48,6 +53,10 @@
   const el = (tag, texto, cls) => { const e = document.createElement(tag); if (texto !== undefined) e.textContent = texto; if (cls) e.className = cls; return e; };
   const reais = (v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+  // A chave é de cada pessoa (Tiago, Aline, Denise) e fica só nesta aba. Quem a pessoa é e o que ela vê o servidor decide.
+  const guardada = { ler() { try { return sessionStorage.getItem("chave") || ""; } catch { return ""; } }, gravar(v) { try { sessionStorage.setItem("chave", v); } catch { /* sem armazenamento: pede de novo */ } } };
+  const cabecalhos = (extra = {}) => ({ ...extra, authorization: "Bearer " + guardada.ler() });
+
   const falhas = new Map(); // id -> o que deu errado; o item que não salvou volta ao topo, com aviso, até salvar
   let salvoAgora = null;    // id do último item gravado, para a tela dizer "salvo"
   const estado = (item, texto, cls) => { let e = item.querySelector(".estado") || item.appendChild(el("p", "", "estado")); e.className = "estado " + (cls || ""); e.textContent = texto; };
@@ -57,11 +66,11 @@
     estado(itemEl, "Salvando…", "salvando");
     let r, c;
     try {
-      r = await fetch("/api/fila", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...corpo, quem: "tiago" }) });
+      r = await fetch("/api/fila", { method: "POST", headers: cabecalhos({ "content-type": "application/json" }), body: JSON.stringify(corpo) });
       c = await r.json();
     } catch { r = { ok: false }; c = { erro: "sem_conexao" }; }
     if (!r.ok) {
-      const motivo = c.erro === "correcao_invalida" ? "a correção não passou na conferência (" + c.detalhes.map((d) => d.campo).join(", ") + ")" : c.erro === "sem_conexao" ? "sem conexão com o servidor" : "o servidor devolveu erro (" + c.erro + ")";
+      const motivo = c.erro === "correcao_invalida" ? "a correção não passou na conferência (" + c.detalhes.map((d) => d.campo).join(", ") + ")" : c.erro === "sem_conexao" ? "sem conexão com o servidor" : c.erro === "nao_autenticado" ? "a chave não vale; entre de novo" : "o servidor devolveu erro (" + c.erro + ")";
       falhas.set(corpo.id, "Não salvou: " + motivo + ". O item continua aguardando; confira e tente de novo.");
       return carregar();
     }
@@ -112,10 +121,18 @@
   }
 
   async function carregar() {
-    const c = await (await fetch("/api/fila")).json();
+    const r = await fetch("/api/fila", { headers: cabecalhos() });
+    const c = await r.json();
+    if (!r.ok) {
+      $("quem").textContent = c.erro === "fila_sem_chaves" ? "A fila está fechada: o servidor ainda não tem as chaves." : guardada.ler() ? "A chave não vale." : "Digite a sua chave para ver a fila.";
+      $("resumo").replaceChildren(); $("lista").replaceChildren();
+      return;
+    }
+    $("quem").textContent = "Você entrou como " + c.voce + ".";
     $("resumo").replaceChildren(...Object.entries(c.resumo).flatMap(([tipo, estados]) => Object.entries(estados).map(([e, n]) => el("span", NOME[tipo] + " · " + e + ": " + n))));
     $("lista").replaceChildren(...(c.itens.length ? [...c.itens].sort((x, y) => falhas.has(y.id) - falhas.has(x.id)).map(desenhar) : [el("p", "A fila está vazia.")]));
   }
+  $("entrada").onsubmit = (e) => { e.preventDefault(); guardada.gravar($("chave").value); $("chave").value = ""; carregar(); };
   carregar();
 </script>
 </body>
