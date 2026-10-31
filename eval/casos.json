@@ -1,0 +1,47 @@
+[
+  {
+    "id": "E01-clara",
+    "tipo": "mensagem clara, um lançamento",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 1.250 do aluguel do ponto hoje no boleto",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [{ "data": "2026-10-14", "tipo": "despesa", "categoria": "2.3", "valor": 1250, "forma": "boleto", "data_assumida": false }],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "1 (a mensagem diz 'hoje', então a data não é assumida) e plano de contas 2.3 (aluguel); abaixo de R$ 5.000, sem aviso (11)"
+  },
+  {
+    "id": "E02-mais-de-um",
+    "tipo": "vira mais de um lançamento",
+    "cliente_id": "C-0288",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "troquei a bomba do carro do seu Zé, peça 380 e mão de obra 220, ele pagou os 600 no pix",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        { "data": "2026-10-14", "tipo": "receita", "categoria": "1.1", "valor": 380, "forma": "pix", "data_assumida": true },
+        { "data": "2026-10-14", "tipo": "receita", "categoria": "1.2", "valor": 220, "forma": "pix", "data_assumida": true }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "8 (peça é mercadoria, mão de obra é serviço, e a mensagem separa os valores: dois lançamentos), 4 (quem pagou é cliente, então é receita) e 1 (sem data, vale a da mensagem, assumida)"
+  },
+  {
+    "id": "E03-nao-vira-lancamento",
+    "tipo": "não vira lançamento",
+    "cliente_id": "C-0533",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "bom dia! chegou o boleto da luz aqui, 410, vence dia 25. pago amanhã",
+    "esperado": {
+      "resultado": "nada",
+      "lancamentos": [],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "13 (boleto recebido que ainda não foi pago e aviso de coisa que vai acontecer não geram nada) e 3 (nada com data futura entra)"
+  }
+]
