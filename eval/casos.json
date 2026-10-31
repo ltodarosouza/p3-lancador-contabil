@@ -22,7 +22,7 @@
     },
     "regra": "1 (a mensagem traz a data, então não é assumida) e plano de contas 2.3; abaixo de R$ 5.000, sem aviso (11)",
     "lacuna": null,
-    "conta_na_nota": false
+    "conta_na_nota": true
   },
   {
     "id": "E02",
