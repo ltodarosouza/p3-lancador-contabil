@@ -100,6 +100,27 @@ Comando que roda tudo (a chave vem do `.env`, nunca é impressa; ~1 min por roda
 
 Limites: uma rodada por condição, 17 casos, gabarito provisório, e a mudança foi escolhida olhando um caso que já falhava nos mesmos casos do eval (sem casos separados de fora).
 
+## Histórico na chamada (3.8)
+
+**Desenho (escrito antes do código).** O que entra: só lançamentos que uma pessoa conferiu (aprovado ou corrigido), nunca a saída crua do modelo (`fila.aprovados(cliente_id)`). Quem escolhe: o código, por `cliente_id`, e o recorte filtra de novo por cliente mesmo que a fonte erre (`lib/historico.js`). Teto: 60 linhas, as mais recentes (uns 2.100 tokens, a 35,4 por linha), bem abaixo das ~420 linhas em que o limite de tokens por minuto estouraria antes o de requisições (estimativa). Ordem do prompt: o fixo primeiro (system, igual em toda chamada, para o provedor reaproveitar o prefixo), depois a linha do cliente, o histórico delimitado como dado, as anteriores e a mensagem por último. Aspas triplas dentro de uma descrição são trocadas, para o texto não escapar do bloco. O log diz quantas linhas entraram (`historico_linhas`), nunca o texto. Hoje a fonte é a fila em memória; os casos do eval trazem o histórico no próprio caso (fictício, escrito por mim). **Não existe ainda a busca por mês ou por palavra**: o recorte é só "as últimas 60 do cliente"; a ideia de filtrar por mês ou pelo nome ("Marcão") quando a pergunta pede é desenho, não está no código.
+
+**Comparação, 3 rodadas de cada, mesmo modelo e mesmo prompt (`773cde5695`), pausa de 4,5 s, 0 esperas por 429.** Comandos: `EVAL_HISTORICO=0 node scripts/eval.js 38-sem-N` e `EVAL_HISTORICO=1 node scripts/eval.js 38-com-N`. O eval agora tem 23 casos, 20 que contam (os 3 de lacuna ficam fora). Os 18 casos sem histórico próprio são idênticos nas duas condições.
+
+| | Sem histórico | Com histórico |
+|---|---|---|
+| Passaram, rodadas 1, 2 e 3 | 17, 16, 17 de 20 | 18, 18, 18 de 20 |
+| E10 Marquinho | passa 1 de 3 | passa 3 de 3 |
+| E12 combustível | passa 2 de 3 | passa 3 de 3 |
+| E21 "pix pro marcão" | passa 3 de 3 (pendência) | passa 3 de 3 (**lança 2.12**) |
+| E22 histórico sem veículo | passa 2 de 3 | passa 3 de 3 |
+| E23 luz sem valor | falha 3 de 3 | falha 3 de 3 |
+| Entrada média (todas as chamadas) | 1.695 tokens, R$ 0,00485 por mensagem | 1.719 tokens, R$ 0,00495 (+2%) |
+| Entrada média nos 5 casos com histórico | 1.689 tokens, R$ 0,0045 | 1.800 tokens, R$ 0,0050 (+11%) |
+
+Custo refeito só com os tokens, preço de 28/10/2026 (US$ 0,30 e US$ 2,50 por milhão) e dólar PTAX de 30/10/2026 (R$ 5,4212). **O que mudou por causa do histórico:** E21 passou de pendência a lançamento, como o esperado com histórico pede; E10 e E12 deixaram de oscilar. **Nenhum caso piorou.** O E22 e o E23 são controles: o histórico não virou permissão (E22: sem veículo no histórico, continua pendência) e **não completou o valor que faltava** (E23: o modelo não chutou os 380, a validação barrou). O E23 falha pelo mesmo motivo do E05 (o modelo monta lançamento sem valor, a validação barra, cai como "não entendido" em vez de pendência), então o histórico não é a causa. As linhas de histórico dos casos são só 1 a 3, então o custo extra medido é pequeno; com o teto de 60 linhas seria da ordem de +R$ 0,0035 por mensagem (estimativa, não medida). O limite por minuto comporta a padaria sozinha (uns 10 por minuto a 4,5 s, com uns 1.800 tokens), mas **o limite é da chave e uma fila global que espace as chamadas entre vários clientes ainda não existe**. Prompt impresso de uma chamada com histórico: `evidencia/prompt-com-historico.txt`.
+
+Limites: 3 rodadas por condição, histórico fictício e curto, gabarito meu e sem aprovação da Denise, e o `historico_linhas` do log não é escrito quando a resposta cai em "não entendido".
+
 ## A chave do modelo
 
 O provedor é o Gemini, no plano gratuito, escolhido para não gastar nada nesta etapa. A chave fica só no `.env` (local) e nas variáveis de ambiente da Vercel. Ela vai no cabeçalho da chamada, nunca na URL, e nunca volta em resposta nem em erro; os testes conferem isso, e um deles falha se uma chave do Google aparecer em qualquer arquivo versionado. Nos testes só entram mensagens de exemplo, nunca dado de cliente de verdade, porque o plano gratuito pode usar o que se manda.
