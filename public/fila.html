@@ -27,7 +27,9 @@
   button { background: var(--acento); color: #fff; border-color: transparent; font-weight: 600; cursor: pointer; }
   button.sec { background: var(--papel); color: var(--tinta); border-color: var(--linha); }
   button:disabled { opacity: .55; cursor: progress; }
-  .erro { color: var(--erro); font-weight: 600; grid-column: 1 / -1; }
+  .estado { grid-column: 1 / -1; font-weight: 600; }
+  .estado.salvando { color: var(--suave); } .estado.salvo { color: var(--acento); } .estado.falhou { color: var(--erro); }
+  .item:has(.estado.falhou) { border-color: var(--erro); }
   :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 </style>
 </head>
@@ -46,16 +48,25 @@
   const el = (tag, texto, cls) => { const e = document.createElement(tag); if (texto !== undefined) e.textContent = texto; if (cls) e.className = cls; return e; };
   const reais = (v) => Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+  const falhas = new Map(); // id -> o que deu errado; o item que não salvou volta ao topo, com aviso, até salvar
+  let salvoAgora = null;    // id do último item gravado, para a tela dizer "salvo"
+  const estado = (item, texto, cls) => { let e = item.querySelector(".estado") || item.appendChild(el("p", "", "estado")); e.className = "estado " + (cls || ""); e.textContent = texto; };
+
   async function agir(corpo, itemEl, botoes) {
     botoes.forEach((b) => (b.disabled = true)); // o clique duplo não aprova duas vezes
-    const r = await fetch("/api/fila", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...corpo, quem: "tiago" }) });
-    const c = await r.json();
+    estado(itemEl, "Salvando…", "salvando");
+    let r, c;
+    try {
+      r = await fetch("/api/fila", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...corpo, quem: "tiago" }) });
+      c = await r.json();
+    } catch { r = { ok: false }; c = { erro: "sem_conexao" }; }
     if (!r.ok) {
-      botoes.forEach((b) => (b.disabled = false));
-      let e = itemEl.querySelector(".erro") || itemEl.appendChild(el("p", "", "erro"));
-      e.textContent = "Não salvou: " + (c.erro === "correcao_invalida" ? "a correção não passou na conferência (" + c.detalhes.map((d) => d.campo).join(", ") + ")." : "tente de novo (" + c.erro + ").");
-      return;
+      const motivo = c.erro === "correcao_invalida" ? "a correção não passou na conferência (" + c.detalhes.map((d) => d.campo).join(", ") + ")" : c.erro === "sem_conexao" ? "sem conexão com o servidor" : "o servidor devolveu erro (" + c.erro + ")";
+      falhas.set(corpo.id, "Não salvou: " + motivo + ". O item continua aguardando; confira e tente de novo.");
+      return carregar();
     }
+    falhas.delete(corpo.id);
+    salvoAgora = corpo.id;
     carregar();
   }
 
@@ -63,7 +74,7 @@
     const item = el("article", undefined, "item");
     const topo = el("div", undefined, "topo");
     topo.append(el("h2", NOME[i.tipo]), el("span", i.cliente_id + (i.mensagem_id ? " · " + i.mensagem_id : ""), "marca"), el("span", ESTADO[i.estado], "marca"));
-    if (i.aviso) topo.append(el("span", "ler com atenção", "marca aviso"));
+    if (i.aviso || falhas.has(i.id)) topo.append(el("span", "ler com atenção", "marca aviso"));
     if (i.lancamento?.data_assumida) topo.append(el("span", "data assumida", "marca aviso"));
     item.append(topo);
     const orig = el("blockquote"); orig.append(el("p", "Mensagem original"), el("div", i.mensagem)); item.append(orig);
@@ -95,13 +106,15 @@
       acoes.append(aprovar, corrigir); item.append(acoes);
     }
     if (i.correcao) item.append(el("p", "Corrigido por " + i.correcao.por + ": " + Object.entries(i.correcao.campos).map(([k, v]) => k + " " + v.de + " → " + v.para).join("; ")));
+    if (falhas.has(i.id)) estado(item, falhas.get(i.id), "falhou");
+    else if (salvoAgora === i.id) estado(item, "Salvo.", "salvo");
     return item;
   }
 
   async function carregar() {
     const c = await (await fetch("/api/fila")).json();
     $("resumo").replaceChildren(...Object.entries(c.resumo).flatMap(([tipo, estados]) => Object.entries(estados).map(([e, n]) => el("span", NOME[tipo] + " · " + e + ": " + n))));
-    $("lista").replaceChildren(...(c.itens.length ? c.itens.map(desenhar) : [el("p", "A fila está vazia.")]));
+    $("lista").replaceChildren(...(c.itens.length ? [...c.itens].sort((x, y) => falhas.has(y.id) - falhas.has(x.id)).map(desenhar) : [el("p", "A fila está vazia.")]));
   }
   carregar();
 </script>

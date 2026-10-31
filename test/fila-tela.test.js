@@ -35,3 +35,12 @@ test("a tela mostra a data assumida junto da data e a orientação do item", () 
   assert.match(pagina, /o_que_fazer/);
   assert.match(pagina, /tentativas/);
 });
+
+test("o clique mostra salvando e salvo, e a falha de gravação devolve o item ao topo com aviso", () => {
+  const pagina = fs.readFileSync(path.join(__dirname, "..", "public", "fila.html"), "utf8");
+  assert.match(pagina, /Salvando/);
+  assert.match(pagina, /"Salvo\./);
+  assert.match(pagina, /Não salvou/);
+  assert.match(pagina, /falhas\.has\(y\.id\) - falhas\.has\(x\.id\)/);
+  assert.match(pagina, /catch \{ r = \{ ok: false \}/); // servidor fora do ar não deixa os botões travados
+});
