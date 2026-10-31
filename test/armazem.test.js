@@ -99,3 +99,16 @@ test("sem variáveis no ambiente o armazém é a memória; com elas, o Redis", (
   assert.equal(armazemDoAmbiente({ KV_REST_API_URL: "https://a.test", KV_REST_API_TOKEN: "t" }).nome, "upstash");
   assert.equal(armazemDoAmbiente({ UPSTASH_REDIS_REST_URL: "https://a.test", UPSTASH_REDIS_REST_TOKEN: "t" }).nome, "upstash");
 });
+
+// O script que roda o contrato contra o Redis de verdade também é testado, aqui contra a memória e contra o Redis de mentira.
+test("o script de prova do Redis de verdade passa na memória e no Redis de mentira, e apaga o que gravou", async () => {
+  const { provar, comPrefixo } = require("../scripts/prova-armazem");
+  for (const nova of Object.values(implementacoes)) {
+    const base = nova();
+    const a = comPrefixo(base, "prova:teste:");
+    assert.equal(await provar(a), "ok");
+    await a.limpar();
+    assert.equal(await base.get("prova:teste:x"), null, "o que o script gravou foi apagado");
+    assert.deepEqual(await base.smembers("prova:teste:s"), []);
+  }
+});
