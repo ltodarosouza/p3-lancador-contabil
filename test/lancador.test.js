@@ -143,7 +143,7 @@ test("valor ausente com pendência do modelo: fica a pergunta do modelo, sem dup
 });
 
 test("valor presente mas inválido continua sendo 'não entendido', não vira pendência", async () => {
-  for (const valor of [0, -5, "mil", 10.123]) {
+  for (const valor of [-5, "mil", 10.123]) {
     const r = await lancar({ ...base, cliente_id: "C-0533" }, { chamarModelo: modeloFalso(semValor({ valor })) });
     assert.equal(r.corpo.resultado, "nao_entendido", String(valor));
   }
@@ -156,4 +156,17 @@ test("lançamento sem valor e sem outro erro: os outros lançamentos da mesma me
   assert.equal(r.corpo.resultado, "lancou");
   assert.equal(r.corpo.lancamentos.length, 1);
   assert.equal(r.corpo.pendencias.length, 1);
+});
+
+// O que o Gemini devolveu de verdade para "paguei a luz no pix ontem" (31/10/2026): valor 0 junto com a pergunta pronta, não o campo ausente.
+test("valor zero, como o modelo real devolve quando falta o valor, também vira pendência, e fica a pergunta dele", async () => {
+  const lido = JSON.parse(semValor({ valor: 0 }).texto);
+  lido.pendencias = [{ pergunta: "Camila, qual foi o valor do pix que você pagou da luz ontem?" }];
+  const r = await lancar({ ...base, cliente_id: "C-0533", mensagem: "paguei a luz no pix ontem" }, { chamarModelo: modeloFalso({ texto: JSON.stringify(lido), tokens: { entrada: 1683, saida: 190 } }) });
+  assert.equal(r.corpo.resultado, "pendencia");
+  assert.deepEqual(r.corpo.lancamentos, []);
+  assert.deepEqual(r.corpo.pendencias, [{ pergunta: "Camila, qual foi o valor do pix que você pagou da luz ontem?" }]);
+  const sem = await lancar({ ...base, cliente_id: "C-0533" }, { chamarModelo: modeloFalso(semValor({ valor: 0 })) });
+  assert.equal(sem.corpo.resultado, "pendencia", "sem pergunta do modelo, o código monta uma");
+  assert.equal(sem.corpo.pendencias.length, 1);
 });

@@ -1,0 +1,325 @@
+{
+  "resumo": {
+    "com_historico": false,
+    "tokens_entrada_media": 1695,
+    "rotulo": "pos-codigo-sem-2",
+    "quando": "2026-10-31T18:49:37.222Z",
+    "modelo": "gemini-3.5-flash-lite",
+    "prompt_sha": "773cde5695",
+    "esperas_por_429": 0,
+    "conta_na_nota": 20,
+    "passaram": 18,
+    "nao_rodados_429": [],
+    "fora_da_nota": [
+      "E02:passou",
+      "E03:passou",
+      "E16:passou"
+    ],
+    "gabarito": "provisório: ninguém aprovou ainda"
+  },
+  "linhas": [
+    {
+      "id": "E01",
+      "tipo": "mensagem clara, um lançamento",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1701,
+      "tokens_saida": 162,
+      "custo_brl": 0.004962,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E02",
+      "tipo": "lacuna da regra: 'hoje'",
+      "conta": false,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1698,
+      "tokens_saida": 164,
+      "custo_brl": 0.004984,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E03",
+      "tipo": "vira mais de um lançamento",
+      "conta": false,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1711,
+      "tokens_saida": 261,
+      "custo_brl": 0.00632,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E04",
+      "tipo": "não vira lançamento",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1701,
+      "tokens_saida": 53,
+      "custo_brl": 0.003485,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E05",
+      "tipo": "sem valor vira pendência",
+      "conta": true,
+      "estado": "falhou",
+      "diferencas": [
+        "sistema devolveu nao_entendido (validacao)"
+      ],
+      "perguntas": [],
+      "tokens_entrada": 1683,
+      "tokens_saida": 202,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E06",
+      "tipo": "valor escrito como 1,2k",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1696,
+      "tokens_saida": 183,
+      "custo_brl": 0.005239,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E07",
+      "tipo": "outra moeda vira pendência",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Jéssica, quanto ficou em reais os 200 dólares da assinatura do site?",
+          "problemas": []
+        }
+      ],
+      "tokens_entrada": 1691,
+      "tokens_saida": 112,
+      "custo_brl": 0.004268,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E08",
+      "tipo": "parcela que já caiu",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1703,
+      "tokens_saida": 168,
+      "custo_brl": 0.005047,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E09",
+      "tipo": "acima de R$ 5.000 chega com aviso",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1702,
+      "tokens_saida": 172,
+      "custo_brl": 0.005099,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E10",
+      "tipo": "pagamento avulso a pessoa física sem histórico",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Rubens, o pagamento de R$ 300 para o Marquinho foi para um serviço feito na oficina?",
+          "problemas": []
+        }
+      ],
+      "tokens_entrada": 1694,
+      "tokens_saida": 95,
+      "custo_brl": 0.004043,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E11",
+      "tipo": "coisa da casa do sócio é retirada",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1695,
+      "tokens_saida": 168,
+      "custo_brl": 0.005034,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E12",
+      "tipo": "combustível sem saber se o veículo é da empresa",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Jéssica, o carro que você abasteceu é da empresa?",
+          "problemas": []
+        }
+      ],
+      "tokens_entrada": 1688,
+      "tokens_saida": 77,
+      "custo_brl": 0.003789,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E13",
+      "tipo": "despesa paga com dinheiro do sócio",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1691,
+      "tokens_saida": 155,
+      "custo_brl": 0.004851,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E14",
+      "tipo": "juros e multa em lançamento separado",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1701,
+      "tokens_saida": 242,
+      "custo_brl": 0.006046,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E15",
+      "tipo": "recebido em mais de uma forma",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1703,
+      "tokens_saida": 251,
+      "custo_brl": 0.006171,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E16",
+      "tipo": "dinheiro de sócio é aporte",
+      "conta": false,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1701,
+      "tokens_saida": 150,
+      "custo_brl": 0.004799,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E17",
+      "tipo": "o cliente diz como lançar",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1700,
+      "tokens_saida": 176,
+      "custo_brl": 0.00515,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E18",
+      "tipo": "dúvida não gera lançamento",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1683,
+      "tokens_saida": 82,
+      "custo_brl": 0.003849,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E19",
+      "tipo": "'sexta' conta a partir da mensagem",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1691,
+      "tokens_saida": 190,
+      "custo_brl": 0.005325,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E20",
+      "tipo": "pedido cancelado antes de entrar",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1691,
+      "tokens_saida": 66,
+      "custo_brl": 0.003645,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E21",
+      "tipo": "histórico: pagamento avulso já feito antes pela mesma coisa",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Nilton, o pix de 450 para o Marcão foi referente a quê?",
+          "problemas": []
+        }
+      ],
+      "tokens_entrada": 1688,
+      "tokens_saida": 94,
+      "custo_brl": 0.004019,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E22",
+      "tipo": "histórico que NÃO resolve: não mostra veículo da empresa",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Camila, o carro que você abasteceu é da empresa?",
+          "problemas": []
+        }
+      ],
+      "tokens_entrada": 1687,
+      "tokens_saida": 88,
+      "custo_brl": 0.003936,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E23",
+      "tipo": "histórico não completa o valor que falta",
+      "conta": true,
+      "estado": "falhou",
+      "diferencas": [
+        "sistema devolveu nao_entendido (validacao)"
+      ],
+      "perguntas": [],
+      "tokens_entrada": 1687,
+      "tokens_saida": 170,
+      "historico_linhas": 0
+    }
+  ]
+}
