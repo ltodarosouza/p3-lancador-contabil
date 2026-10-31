@@ -91,8 +91,10 @@ Comando que roda tudo (a chave vem do `.env`, nunca é impressa; ~1 min por roda
 | 2, sem mudança | `773cde5695` | 15 | E05, E11 |
 | 3, com uma mudança | `5adbe78f91` | 14 | E05, E09, E10 (e E03, fora da nota) |
 | 4, sem mudança, pausa de 4,5 s | `773cde5695` | 15 | E05, E12 (0 esperas por 429) |
+| 5, sem mudança, pausa de 4,5 s | `773cde5695` | 16 | E05 (0 esperas por 429) |
+| 6, sem mudança, pausa de 4,5 s | `773cde5695` | 16 | E05 (0 esperas por 429) |
 
-**O que isso mostra.** Três rodadas idênticas deram 14, 15 e 15: o sistema oscila sozinho, mesmo com temperatura 0 (E10 e E12 erraram na primeira e acertaram na segunda; E11 foi o contrário). Cada caso vale quase 6 pontos, então uma diferença de um acerto é ruído. A única falha estável é o **E05** ("paguei a luz no pix ontem", sem valor): o modelo monta um lançamento com valor inválido, a validação barra e a mensagem cai na fila como "não entendido", e o esperado era pendência. Isso é seguro, nada vira lançamento, mas não é a pergunta ao cliente que a regra 1 pede.
+**O que isso mostra.** Seis rodadas idênticas deram 14, 15, 15, 16, 16 e 16 (as três últimas, no ritmo novo e sem nenhuma espera por 429, são a medição limpa: faixa de 15 a 16): o sistema oscila sozinho, mesmo com temperatura 0 (E10 e E12 erraram na primeira e acertaram na segunda; E11 foi o contrário). Cada caso vale quase 6 pontos, então uma diferença de um acerto é ruído. A única falha estável é o **E05** ("paguei a luz no pix ontem", sem valor): o modelo monta um lançamento com valor inválido, a validação barra e a mensagem cai na fila como "não entendido", e o esperado era pendência. Isso é seguro, nada vira lançamento, mas não é a pergunta ao cliente que a regra 1 pede.
 
 **A mudança única da rodada 3:** uma linha no formato da resposta, "se a mensagem não traz o valor, não monte lançamento, devolva só a pendência". Resultado: o E05 **continuou falhando** (o modelo ignorou a linha), 14 de 17 caiu na faixa das rodadas sem mudança, e apareceu uma falha nova no E09 que não dá para atribuir à mudança com uma rodada só. **Não há evidência de que melhorou, então desfiz a mudança** (o prompt voltou a `773cde5695`). Para valer como medida, o antes e o depois precisam de umas 5 rodadas cada. Uma saída possível, não feita, é no código: lançamento sem valor virar pendência em vez de "não entendido".
 
