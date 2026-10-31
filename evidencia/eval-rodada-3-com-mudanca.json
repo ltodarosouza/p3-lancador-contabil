@@ -1,0 +1,207 @@
+{
+  "resumo": {
+    "rotulo": "rodada-3-com-mudanca",
+    "quando": "2026-10-31T13:51:10.872Z",
+    "modelo": "gemini-3.5-flash-lite",
+    "prompt_sha": "5adbe78f91",
+    "conta_na_nota": 17,
+    "passaram": 14,
+    "nao_rodados_429": [],
+    "fora_da_nota": [
+      "E02:passou",
+      "E03:falhou",
+      "E16:passou"
+    ],
+    "gabarito": "provisório: ninguém aprovou ainda"
+  },
+  "linhas": [
+    {
+      "id": "E01",
+      "tipo": "mensagem clara, um lançamento",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E02",
+      "tipo": "lacuna da regra: 'hoje'",
+      "conta": false,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E03",
+      "tipo": "vira mais de um lançamento",
+      "conta": false,
+      "estado": "falhou",
+      "diferencas": [
+        "sistema devolveu nao_entendido (validacao)"
+      ],
+      "perguntas": []
+    },
+    {
+      "id": "E04",
+      "tipo": "não vira lançamento",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E05",
+      "tipo": "sem valor vira pendência",
+      "conta": true,
+      "estado": "falhou",
+      "diferencas": [
+        "sistema devolveu nao_entendido (validacao)"
+      ],
+      "perguntas": []
+    },
+    {
+      "id": "E06",
+      "tipo": "valor escrito como 1,2k",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E07",
+      "tipo": "outra moeda vira pendência",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Jéssica, quanto deu em reais os 200 dólares da assinatura do site de ontem?",
+          "problemas": []
+        }
+      ]
+    },
+    {
+      "id": "E08",
+      "tipo": "parcela que já caiu",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E09",
+      "tipo": "acima de R$ 5.000 chega com aviso",
+      "conta": true,
+      "estado": "falhou",
+      "diferencas": [
+        "resultado: esperado lancou, veio pendencia",
+        "pendências: esperado 0, vieram 1",
+        "lançamentos: esperado 1, vieram 0"
+      ],
+      "perguntas": [
+        {
+          "pergunta": "Nilton, o pagamento de 7.500 do aluguel do dia 5 foi de qual mês?",
+          "problemas": []
+        }
+      ]
+    },
+    {
+      "id": "E10",
+      "tipo": "pagamento avulso a pessoa física sem histórico",
+      "conta": true,
+      "estado": "falhou",
+      "diferencas": [
+        "resultado: esperado pendencia, veio lancou",
+        "pendências: esperado 1, vieram 0",
+        "aviso: esperado true, veio false",
+        "lançamentos: esperado 0, vieram 1"
+      ],
+      "perguntas": []
+    },
+    {
+      "id": "E11",
+      "tipo": "coisa da casa do sócio é retirada",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E12",
+      "tipo": "combustível sem saber se o veículo é da empresa",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Jéssica, o carro que você abasteceu é da empresa?",
+          "problemas": []
+        }
+      ]
+    },
+    {
+      "id": "E13",
+      "tipo": "despesa paga com dinheiro do sócio",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E14",
+      "tipo": "juros e multa em lançamento separado",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E15",
+      "tipo": "recebido em mais de uma forma",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E16",
+      "tipo": "dinheiro de sócio é aporte",
+      "conta": false,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E17",
+      "tipo": "o cliente diz como lançar",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E18",
+      "tipo": "dúvida não gera lançamento",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E19",
+      "tipo": "'sexta' conta a partir da mensagem",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    },
+    {
+      "id": "E20",
+      "tipo": "pedido cancelado antes de entrar",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": []
+    }
+  ]
+}

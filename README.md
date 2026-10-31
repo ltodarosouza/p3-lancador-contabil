@@ -79,6 +79,24 @@ O modelo só devolve um texto em JSON; ele não tem função nenhuma para chamar
 
 **Ressalvas:** A rota `/api/fila` não tem login, então a trava vale tanto quanto a autenticação, que ainda não existe. A fila é uma só, sem separar por cliente. 
 
+## Eval
+
+`eval/casos.json` tem 20 casos (13 lançam, 4 pendências, 3 "nada"), cada um com o esperado escrito **antes** de rodar, a regra que decidiu e as lacunas marcadas (`eval/lacunas-para-a-denise.md`). **O gabarito é meu e ninguém aprovou ainda: o número é provisório.** Três casos (E02, E03, E16) ficam fora da nota até a Denise responder as lacunas, então a nota é sobre 17. Dois deles (E10, E12) dependem de histórico: o esperado vale sem histórico, que é o que o sistema tem hoje, e o esperado com histórico fica guardado para a 3.8.
+
+Comando que roda tudo (a chave vem do `.env`, nunca é impressa; ~1 min por rodada): `node scripts/eval.js <rótulo>`. Compara por código, caso a caso: resultado, quantidade de lançamentos e pendências, aviso e, em cada lançamento, data, tipo, categoria, valor, forma e a marca de data assumida; o caso só passa se tudo bater. A pergunta de volta ao cliente passa por uma checagem mecânica (uma só, curta, com um "?", com o nome do cliente, sem termo contábil); a voz da casa fica com uma pessoa lendo. 429 que não passa vira "não rodado", não erro. A pausa é de 2,5 s entre casos; **o limite do projeto no provedor ainda não foi lido no AI Studio**, então o ritmo é conservador e não prova que o limite foi respeitado. Saídas em `evidencia/eval-*.json`.
+
+| Rodada | Prompt | Passaram (de 17) | Falharam |
+|---|---|---|---|
+| 1, sem mudança | `773cde5695` | 14 | E05, E10, E12 |
+| 2, sem mudança | `773cde5695` | 15 | E05, E11 |
+| 3, com uma mudança | `5adbe78f91` | 14 | E05, E09, E10 (e E03, fora da nota) |
+
+**O que isso mostra.** Duas rodadas idênticas deram 14 e 15: o sistema oscila sozinho, mesmo com temperatura 0 (E10 e E12 erraram na primeira e acertaram na segunda; E11 foi o contrário). Cada caso vale quase 6 pontos, então uma diferença de um acerto é ruído. A única falha estável é o **E05** ("paguei a luz no pix ontem", sem valor): o modelo monta um lançamento com valor inválido, a validação barra e a mensagem cai na fila como "não entendido", e o esperado era pendência. Isso é seguro, nada vira lançamento, mas não é a pergunta ao cliente que a regra 1 pede.
+
+**A mudança única da rodada 3:** uma linha no formato da resposta, "se a mensagem não traz o valor, não monte lançamento, devolva só a pendência". Resultado: o E05 **continuou falhando** (o modelo ignorou a linha), 14 de 17 caiu na faixa das rodadas sem mudança, e apareceu uma falha nova no E09 que não dá para atribuir à mudança com uma rodada só. **Não há evidência de que melhorou, então desfiz a mudança** (o prompt voltou a `773cde5695`). Para valer como medida, o antes e o depois precisam de umas 5 rodadas cada. Uma saída possível, não feita, é no código: lançamento sem valor virar pendência em vez de "não entendido".
+
+Limites: uma rodada por condição, 17 casos, gabarito provisório, e a mudança foi escolhida olhando um caso que já falhava nos mesmos casos do eval (sem casos separados de fora).
+
 ## A chave do modelo
 
 O provedor é o Gemini, no plano gratuito, escolhido para não gastar nada nesta etapa. A chave fica só no `.env` (local) e nas variáveis de ambiente da Vercel. Ela vai no cabeçalho da chamada, nunca na URL, e nunca volta em resposta nem em erro; os testes conferem isso, e um deles falha se uma chave do Google aparecer em qualquer arquivo versionado. Nos testes só entram mensagens de exemplo, nunca dado de cliente de verdade, porque o plano gratuito pode usar o que se manda.
