@@ -1,0 +1,264 @@
+{
+  "resumo": {
+    "com_historico": true,
+    "tokens_entrada_media": 1724,
+    "rotulo": "pos-zero-com-1",
+    "quando": "2026-10-31T19:11:33.075Z",
+    "modelo": "gemini-3.5-flash-lite",
+    "prompt_sha": "773cde5695",
+    "esperas_por_429": 46,
+    "conta_na_nota": 20,
+    "passaram": 3,
+    "nao_rodados_429": [
+      "E01",
+      "E02",
+      "E03",
+      "E04",
+      "E06",
+      "E07",
+      "E08",
+      "E09",
+      "E10",
+      "E11",
+      "E12",
+      "E13",
+      "E14",
+      "E15",
+      "E16",
+      "E17",
+      "E18",
+      "E19",
+      "E22",
+      "E23"
+    ],
+    "fora_da_nota": [
+      "E02:nao_rodado_429",
+      "E03:nao_rodado_429",
+      "E16:nao_rodado_429"
+    ],
+    "gabarito": "provisório: ninguém aprovou ainda"
+  },
+  "linhas": [
+    {
+      "id": "E01",
+      "tipo": "mensagem clara, um lançamento",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E02",
+      "tipo": "lacuna da regra: 'hoje'",
+      "conta": false,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E03",
+      "tipo": "vira mais de um lançamento",
+      "conta": false,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E04",
+      "tipo": "não vira lançamento",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E05",
+      "tipo": "sem valor vira pendência",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [
+        {
+          "pergunta": "Camila, qual foi o valor da conta de luz que você pagou ontem?",
+          "problemas": []
+        }
+      ],
+      "tokens_entrada": 1683,
+      "tokens_saida": 187,
+      "custo_brl": 0.005272,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E06",
+      "tipo": "valor escrito como 1,2k",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E07",
+      "tipo": "outra moeda vira pendência",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E08",
+      "tipo": "parcela que já caiu",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E09",
+      "tipo": "acima de R$ 5.000 chega com aviso",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E10",
+      "tipo": "pagamento avulso a pessoa física sem histórico",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E11",
+      "tipo": "coisa da casa do sócio é retirada",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E12",
+      "tipo": "combustível sem saber se o veículo é da empresa",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E13",
+      "tipo": "despesa paga com dinheiro do sócio",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E14",
+      "tipo": "juros e multa em lançamento separado",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E15",
+      "tipo": "recebido em mais de uma forma",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E16",
+      "tipo": "dinheiro de sócio é aporte",
+      "conta": false,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E17",
+      "tipo": "o cliente diz como lançar",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E18",
+      "tipo": "dúvida não gera lançamento",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E19",
+      "tipo": "'sexta' conta a partir da mensagem",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E20",
+      "tipo": "pedido cancelado antes de entrar",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1691,
+      "tokens_saida": 71,
+      "custo_brl": 0.003712,
+      "historico_linhas": 0
+    },
+    {
+      "id": "E21",
+      "tipo": "histórico: pagamento avulso já feito antes pela mesma coisa",
+      "conta": true,
+      "estado": "passou",
+      "diferencas": [],
+      "perguntas": [],
+      "tokens_entrada": 1797,
+      "tokens_saida": 190,
+      "custo_brl": 0.005498,
+      "historico_linhas": 2
+    },
+    {
+      "id": "E22",
+      "tipo": "histórico que NÃO resolve: não mostra veículo da empresa",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    },
+    {
+      "id": "E23",
+      "tipo": "histórico não completa o valor que falta",
+      "conta": true,
+      "estado": "nao_rodado_429",
+      "diferencas": [],
+      "perguntas": [],
+      "historico_linhas": 0
+    }
+  ]
+}

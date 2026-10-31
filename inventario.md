@@ -37,7 +37,7 @@ Feito em 31/10/2026, depois das aulas 3.3 a 3.9, antes de fechar a prática. Lis
 
 ## 2. O que já existe
 
-Do que o brief pede, conferido no código e nos testes (suíte: 115 testes, sem rede e sem chave):
+Do que o brief pede, conferido no código e nos testes (suíte: 116 testes, sem rede e sem chave):
 
 - **Lançador com o Gemini** (`gemini-3.5-flash-lite`), com as 15 regras da casa e o plano de contas em `instrucoes.md`, copiados do material. Resultado por mensagem: lançou, pendência, nada ou não entendido. Mensagens anteriores entram, no máximo 5, e cada uma tem de ser do mesmo cliente (senão 400). O material traz áudio já transcrito, e o sistema lê esse texto.
 - **Sem valor vira pendência, no código** (regra 1), com uma pergunta só na voz da casa. Valor presente e errado continua sendo "não entendido".
@@ -53,7 +53,7 @@ Do que o brief pede, conferido no código e nos testes (suíte: 115 testes, sem 
 - **Fila e contador num armazém** (memória, ou Redis por HTTP quando o ambiente traz as variáveis). Duas instâncias sobre o mesmo armazém veem a mesma fila e o item só fecha uma vez. **Provado só contra um Redis de mentira que fala o protocolo do Upstash; não conectei um Redis de verdade.**
 - **Isolamento entre clientes na chamada** e **histórico conferido do cliente na chamada** (só o que uma pessoa aprovou ou corrigiu, no máximo 60 linhas).
 - **Provas hostis** no Gemini real: a injeção respondeu `nada` (agora esse `nada` chega à fila); HTML e script aparecem como texto.
-- **Eval**: 23 casos, 20 contam na nota, 3 fora da nota esperando a Denise. O gabarito é meu, ninguém da casa o aprovou. Resultados em "Eval" no README.
+- **Eval**: 23 casos, 20 contam na nota, 3 fora da nota esperando a Denise. O gabarito é meu, ninguém da casa o aprovou. Depois do conserto da regra 1, a única rodada limpa deu 19 de 20 (E05 e E23 passaram); as outras bateram no limite diário do provedor. Detalhe em "Eval" no README.
 - **README** com decisões, custo, teto, limite do provedor, o que o sistema nunca faz sozinho e o que falta; evidências em `evidencia/`.
 - **No ar** em https://p3-lancador-contabil.vercel.app, mas **numa versão antiga**. O código novo está no repositório e só vai para o ar quando o Lucas pedir.
 

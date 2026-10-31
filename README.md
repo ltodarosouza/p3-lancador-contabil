@@ -10,7 +10,7 @@ Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, cop
 
 ```bash
 cp .env.example .env        # depois preencha GEMINI_API_KEY no .env; o .env está no .gitignore
-npm test                    # 115 testes, sem rede, sem chave de modelo e sem senha de ninguém
+npm test                    # 116 testes, sem rede, sem chave de modelo e sem senha de ninguém
 npm start                   # http://localhost:3000; a fila em /fila, o painel em /painel
 ```
 
@@ -129,9 +129,21 @@ Comando que roda tudo (a chave vem do `.env`, nunca é impressa; ~1 min por roda
 
 **O que isso mostra.** Seis rodadas idênticas deram 14, 15, 15, 16, 16 e 16 (as três últimas, no ritmo novo e sem nenhuma espera por 429, são a medição limpa: faixa de 15 a 16): o sistema oscila sozinho, mesmo com temperatura 0 (E10 e E12 erraram na primeira e acertaram na segunda; E11 foi o contrário). Cada caso vale quase 6 pontos, então uma diferença de um acerto é ruído. A única falha estável é o **E05** ("paguei a luz no pix ontem", sem valor): o modelo monta um lançamento com valor inválido, a validação barra e a mensagem cai na fila como "não entendido", e o esperado era pendência. Isso é seguro, nada vira lançamento, mas não é a pergunta ao cliente que a regra 1 pede.
 
-**A mudança única da rodada 3:** uma linha no formato da resposta, "se a mensagem não traz o valor, não monte lançamento, devolva só a pendência". Resultado: o E05 **continuou falhando** (o modelo ignorou a linha), 14 de 17 caiu na faixa das rodadas sem mudança, e apareceu uma falha nova no E09 que não dá para atribuir à mudança com uma rodada só. **Não há evidência de que melhorou, então desfiz a mudança** (o prompt voltou a `773cde5695`). Para valer como medida, o antes e o depois precisam de umas 5 rodadas cada. Uma saída possível, não feita, é no código: lançamento sem valor virar pendência em vez de "não entendido".
+**A mudança única da rodada 3:** uma linha no formato da resposta, "se a mensagem não traz o valor, não monte lançamento, devolva só a pendência". Resultado: o E05 **continuou falhando** (o modelo ignorou a linha), 14 de 17 caiu na faixa das rodadas sem mudança, e apareceu uma falha nova no E09 que não dá para atribuir à mudança com uma rodada só. **Não há evidência de que melhorou, então desfiz a mudança** (o prompt voltou a `773cde5695`). Para valer como medida, o antes e o depois precisam de umas 5 rodadas cada. A saída no código (lançamento sem valor vira pendência) foi feita depois; ver "Depois do código" abaixo.
 
 Limites: uma rodada por condição, 17 casos, gabarito provisório, e a mudança foi escolhida olhando um caso que já falhava nos mesmos casos do eval (sem casos separados de fora).
+
+### Depois do código: lançamento sem valor vira pendência
+
+Seis rodadas (3 sem histórico, 3 com) logo depois de escrever o conserto da regra 1, mesmo prompt (`773cde5695`), pausa de 4,5 s: `pos-codigo-sem-1..3` e `pos-codigo-com-1..3`. **E05 e E23 continuaram falhando em todas.** O conserto só tratava o campo `valor` ausente, e os testes usavam um modelo de mentira que o omitia. Chamei o Gemini direto: ele devolve `valor: 0` junto com a pergunta pronta. Zero nunca é valor válido, então passei a tratá-lo como "sem valor" (com um teste com a resposta real) e rodei de novo, `pos-zero-*`:
+
+| Rodada | Passaram (de 20) | E05 | E23 | Observação |
+|---|---|---|---|---|
+| `pos-zero-sem-1` | 19 | passou | passou | falhou só o E10, que oscila sem mudança |
+| `pos-zero-sem-2` | 16 | passou | não rodado (429) | E12 falhou; E20 e E23 não rodaram por 429 |
+| `pos-zero-sem-3` e as três `com` | sem valor | não rodou | não rodou | cota esgotada (429 em quase todos os casos; 44 a 46 esperas por rodada) |
+
+**Leitura honesta.** Só a primeira rodada está limpa: 19 de 20, com E05 e E23 passando, o que não aconteceu em nenhuma das seis de antes. A segunda tem dois casos não rodados. As outras quatro não medem nada porque bateram no limite do provedor: o plano gratuito tem 500 requisições por dia (lido no AI Studio) e naquela tarde eu já tinha feito mais de 270 chamadas entre as rodadas e as verificações. Não conferi o contador do painel, então "cota diária" é a explicação provável e não confirmada. Os arquivos das rodadas inválidas ficam em `evidencia/` de propósito, com os 429 contados; o eval não as conta como erro de lançamento. Para dizer que a regra 1 está resolvida, falta repetir as rodadas depois que a cota diária zerar (à meia-noite no Pacífico); com uma rodada limpa e uma parcial, o que dá para afirmar é que o caso que falhava em todas as rodadas anteriores passou nas duas em que rodou, e que o E23 passou em uma.
 
 ## Histórico na chamada (3.8)
 
