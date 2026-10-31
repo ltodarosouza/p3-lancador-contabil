@@ -222,7 +222,9 @@
         "descricao": "pintura do portão, pago ao Marquinho",
         "valor": 280,
         "categoria": "2.12",
-        "forma": "pix"
+        "forma": "pix",
+        "cliente_id": "C-0288",
+        "tipo": "despesa"
       }
     ],
     "esperado_sem_historico": {
@@ -288,14 +290,18 @@
         "descricao": "combustível do carro da loja",
         "valor": 170,
         "categoria": "2.11",
-        "forma": "pix"
+        "forma": "pix",
+        "cliente_id": "C-0601",
+        "tipo": "despesa"
       },
       {
         "data": "2026-07-05",
         "descricao": "IPVA do carro da loja",
         "valor": 900,
         "categoria": "2.8",
-        "forma": "boleto"
+        "forma": "boleto",
+        "cliente_id": "C-0601",
+        "tipo": "despesa"
       }
     ],
     "esperado_sem_historico": {
@@ -517,6 +523,159 @@
     },
     "regra": "13 (pedido que foi cancelado antes de entrar não gera nada)",
     "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E21",
+    "tipo": "histórico: pagamento avulso já feito antes pela mesma coisa",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "pix pro marcão 450 ontem",
+    "historico": [
+      {
+        "cliente_id": "C-0417",
+        "data": "2026-03-12",
+        "tipo": "despesa",
+        "categoria": "2.12",
+        "valor": 430,
+        "forma": "pix",
+        "descricao": "conserto do forno, Marcão"
+      },
+      {
+        "cliente_id": "C-0417",
+        "data": "2026-08-05",
+        "tipo": "despesa",
+        "categoria": "2.12",
+        "valor": 400,
+        "forma": "pix",
+        "descricao": "conserto do forno, Marcão"
+      }
+    ],
+    "esperado_sem_historico": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "esperado_com_historico": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-13",
+          "tipo": "despesa",
+          "categoria": "2.12",
+          "valor": 450,
+          "forma": "pix",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "5 (pagamento avulso a pessoa física sem nota é pendência, salvo se o cliente já pagou a pessoa antes pela mesma coisa; o histórico diz) e 1 ('ontem' é 13/10). Sem histórico: pendência com aviso (11). Com histórico, que mostra o Marcão pago duas vezes por conserto de forno em 2.12: lança como despesa 2.12, sem aviso.",
+    "lacuna": "Dois esperados: sem histórico (o que o sistema tinha) e com histórico. O histórico é fictício e escrito por mim.",
+    "conta_na_nota": true
+  },
+  {
+    "id": "E22",
+    "tipo": "histórico que NÃO resolve: não mostra veículo da empresa",
+    "cliente_id": "C-0533",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "abasteci o carro 150 no pix ontem",
+    "historico": [
+      {
+        "cliente_id": "C-0533",
+        "data": "2026-09-03",
+        "tipo": "despesa",
+        "categoria": "2.3",
+        "valor": 2200,
+        "forma": "boleto",
+        "descricao": "aluguel da sala"
+      },
+      {
+        "cliente_id": "C-0533",
+        "data": "2026-09-20",
+        "tipo": "despesa",
+        "categoria": "2.4",
+        "valor": 310,
+        "forma": "pix",
+        "descricao": "conta de luz"
+      },
+      {
+        "cliente_id": "C-0533",
+        "data": "2026-10-02",
+        "tipo": "despesa",
+        "categoria": "2.16",
+        "valor": 89,
+        "forma": "cartao",
+        "descricao": "assinatura do sistema de agenda"
+      }
+    ],
+    "esperado_sem_historico": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "esperado_com_historico": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "regra": "7 (combustível só é despesa se o veículo for da empresa; o histórico mostra se ela tem). O histórico do studio não mostra nenhum veículo, então o que ele mostra não resolve: continua pendência com aviso, com e sem histórico.",
+    "lacuna": "Caso de controle: o histórico não pode virar permissão para lançar. O histórico é fictício e escrito por mim.",
+    "conta_na_nota": true
+  },
+  {
+    "id": "E23",
+    "tipo": "histórico não completa o valor que falta",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei a luz ontem no pix",
+    "historico": [
+      {
+        "cliente_id": "C-0417",
+        "data": "2026-07-14",
+        "tipo": "despesa",
+        "categoria": "2.4",
+        "valor": 380,
+        "forma": "pix",
+        "descricao": "conta de luz"
+      },
+      {
+        "cliente_id": "C-0417",
+        "data": "2026-08-13",
+        "tipo": "despesa",
+        "categoria": "2.4",
+        "valor": 372,
+        "forma": "pix",
+        "descricao": "conta de luz"
+      },
+      {
+        "cliente_id": "C-0417",
+        "data": "2026-09-14",
+        "tipo": "despesa",
+        "categoria": "2.4",
+        "valor": 391,
+        "forma": "pix",
+        "descricao": "conta de luz"
+      }
+    ],
+    "esperado_sem_historico": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "esperado_com_historico": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "regra": "1 (sem valor, não lança: vira pendência; o valor não se adivinha) e 11 (pendência sempre chega com aviso). O histórico mostra a luz por volta de 380, mas nenhum valor passado vale como o desta mensagem: continua pendência, com e sem histórico.",
+    "lacuna": "Caso de controle contra o chute com cara de memória. O histórico é fictício e escrito por mim.",
     "conta_na_nota": true
   }
 ]
