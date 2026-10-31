@@ -10,7 +10,7 @@ Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, cop
 
 ```bash
 cp .env.example .env        # depois preencha GEMINI_API_KEY no .env; o .env está no .gitignore
-npm test                    # 49 testes, sem rede e sem chave
+npm test                    # 53 testes, sem rede e sem chave
 npm start                   # http://localhost:3000; a fila fica em /fila
 ```
 
@@ -43,6 +43,8 @@ Erros: `400` (corpo ou mensagem inválidos), `405` (só POST), `422` (cliente de
 Nada que o modelo devolve entra sem passar por `lib/validar.js`: a categoria existe no plano do cliente (9.1 não é lançamento), o tipo combina com a categoria, o valor é positivo (só o estorno em 1.4 pode ser negativo), a data é válida e não é depois do dia da mensagem. Falhou uma conferência, a mensagem vai para a fila como `nao_entendido` com o motivo `validacao` e a lista de campos, nunca como lançamento. Cada conferência tem teste.
 
 A fila (`lib/fila.js`, `GET/POST /api/fila`, página `/fila`) guarda sempre a mensagem original ao lado. Tem três tipos de item, separados: `lancamento` (aprovar ou corrigir; a correção passa pela mesma validação, e o de/para, quem e quando ficam gravados), `pendencia` (a pergunta de volta ao cliente) e `nao_entendido`. Estados: `aguardando`, `aprovado`, `corrigido`. Aprovar duas vezes dá `409`. A marca `data_assumida` é decidida pelo código (`lib/data-na-mensagem.js`), não pelo modelo: se o texto da mensagem não traz data (dd/mm, "dia 20", hoje, ontem, dia da semana etc.), o lançamento sai marcado, diga o modelo o que disser. Antes eu repassava o que o modelo devolvia, e ele devolvia `false` sem data. O detector é uma lista de padrões e pode deixar passar jeitos de falar a data que ela não prevê. Valor acima de R$ 5.000 chega com aviso.
+
+Na tela, cada item de `nao_entendido` mostra o motivo, quantas vezes o sistema foi ao provedor (`tentativas`) e **o que fazer** (`o_que_fazer`, texto por motivo em `lib/falhas.js`); o lançamento com data assumida mostra a marca no topo e "(assumida: a mensagem não diz a data)" ao lado da data. A espera do 429 acontece dentro da chamada, antes de o item existir; a tela só mostra o resultado depois, com o número de tentativas, não um estado "esperando". A tela usa o nome fixo "tiago" em aprovar e corrigir, até ter login.
 
 As três falhas provocadas ficam em `test/falhas.test.js`, sem chave e sem rede: (1) saída inválida vai direto à validação e à fila, sem chamar o modelo; (2) `429` espera com tempo crescente e sorteio e tenta até 3 vezes, e se continuar vai para a fila; (3) corte no limite de saída (`MAX_TOKENS`) não repete e vai para a fila. Bloqueio e pedido recusado também vão direto à fila. A documentação do Google não distingue o 429 por minuto do por dia, então a regra vale para os dois.
 

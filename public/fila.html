@@ -70,10 +70,14 @@
     const dir = el("div");
     if (i.tipo === "lancamento") {
       const l = i.lancamento, dl = el("dl");
-      [["Data", l.data], ["Tipo", l.tipo], ["Categoria", l.categoria], ["Valor", reais(l.valor)], ["Forma", l.forma], ["Com quem", l.contraparte || "—"], ["Descrição", l.descricao || "—"]].forEach(([k, v]) => dl.append(el("dt", k), el("dd", v)));
+      [["Data", l.data + (l.data_assumida ? " (assumida: a mensagem não diz a data)" : "")], ["Tipo", l.tipo], ["Categoria", l.categoria], ["Valor", reais(l.valor)], ["Forma", l.forma], ["Com quem", l.contraparte || "—"], ["Descrição", l.descricao || "—"]].forEach(([k, v]) => dl.append(el("dt", k), el("dd", v)));
       dir.append(dl);
     } else if (i.tipo === "pendencia") dir.append(el("p", "Pergunta pronta para mandar ao cliente:"), el("div", i.pergunta));
-    else dir.append(el("p", "Motivo:"), el("div", MOTIVO[i.motivo] || i.motivo));
+    else {
+      dir.append(el("p", "Motivo:"), el("div", MOTIVO[i.motivo] || i.motivo));
+      if (i.tentativas) dir.append(el("p", "Tentativas ao provedor: " + i.tentativas));
+      if (i.o_que_fazer) dir.append(el("p", "O que fazer:"), el("div", i.o_que_fazer));
+    }
     item.append(dir);
     if (i.tipo === "lancamento" && i.estado === "aguardando") {
       const acoes = el("div", undefined, "acoes");
