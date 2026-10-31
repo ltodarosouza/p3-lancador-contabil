@@ -1,6 +1,6 @@
 # Lançador — P3, Prado Contabilidade
 
-A mensagem de WhatsApp de um cliente entra, e o sistema devolve o que lançar, o que perguntar de volta ou nada. Quem confere é o Tiago ou a Aline. Esta é a primeira fatia: **só o lançador**. A fila de conferência e o eval ainda não existem.
+A mensagem de WhatsApp de um cliente entra, e o sistema devolve o que lançar, o que perguntar de volta ou nada. Quem confere é o Tiago ou a Aline. O lançador valida o que o modelo devolve e manda tudo o que não é certo para uma fila mínima de conferência. O eval ainda não existe.
 
 Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, copiadas sem alterar do material da P3 (fictício e anonimizado).
 
@@ -10,8 +10,8 @@ Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, cop
 
 ```bash
 cp .env.example .env        # depois preencha GEMINI_API_KEY no .env; o .env está no .gitignore
-npm test                    # 10 testes, sem rede e sem chave
-npm start                   # http://localhost:3000, com uma página para testar
+npm test                    # 46 testes, sem rede e sem chave
+npm start                   # http://localhost:3000; a fila fica em /fila
 ```
 
 ## Exemplo com `curl` (sem credenciais)
@@ -36,7 +36,17 @@ curl -s -X POST http://localhost:3000/api/lancar \
 
 A resposta traz `lancamentos`, `pendencias` (a pergunta de volta, na voz da casa), `aviso`, `motivo` e `tokens` (entrada e saída). Respostas reais estão em `evidencia/endpoint-local.txt` e `evidencia/chamada-1-m10.txt`.
 
-Erros: `400` (corpo ou mensagem inválidos), `405` (só POST), `422` (cliente desconhecido), `502` (modelo fora do ar ou resposta que não é JSON) e `503` (sem chave configurada). Nenhum devolve detalhe do modelo.
+Erros: `400` (corpo ou mensagem inválidos), `405` (só POST), `422` (cliente desconhecido), `429` (teto do plano) e `503` (sem chave configurada). **Falha do modelo não é mais erro 502:** vira resposta `200` com `resultado: "nao_entendido"` e item na fila, com a mensagem original. Nenhuma resposta devolve detalhe do modelo.
+
+## Validação, fila e falhas (aula 3.5)
+
+Nada que o modelo devolve entra sem passar por `lib/validar.js`: a categoria existe no plano do cliente (9.1 não é lançamento), o tipo combina com a categoria, o valor é positivo (só o estorno em 1.4 pode ser negativo), a data é válida e não é depois do dia da mensagem. Falhou uma conferência, a mensagem vai para a fila como `nao_entendido` com o motivo `validacao` e a lista de campos, nunca como lançamento. Cada conferência tem teste.
+
+A fila (`lib/fila.js`, `GET/POST /api/fila`, página `/fila`) guarda sempre a mensagem original ao lado. Tem três tipos de item, separados: `lancamento` (aprovar ou corrigir; a correção passa pela mesma validação, e o de/para, quem e quando ficam gravados), `pendencia` (a pergunta de volta ao cliente) e `nao_entendido`. Estados: `aguardando`, `aprovado`, `corrigido`. Aprovar duas vezes dá `409`. Lançamento com `data_assumida` e valor acima de R$ 5.000 chegam com aviso.
+
+As três falhas provocadas ficam em `test/falhas.test.js`, sem chave e sem rede: (1) saída inválida vai direto à validação e à fila, sem chamar o modelo; (2) `429` espera com tempo crescente e sorteio e tenta até 3 vezes, e se continuar vai para a fila; (3) corte no limite de saída (`MAX_TOKENS`) não repete e vai para a fila. Bloqueio e pedido recusado também vão direto à fila. A documentação do Google não distingue o 429 por minuto do por dia, então a regra vale para os dois.
+
+**Limites desta versão:** a fila e o contador do teto ficam na memória da instância; na Vercel `/api/lancar` e `/api/fila` são funções separadas e **não dividiriam a mesma fila**. A fila não tem login. Por isso o código novo ainda **não foi publicado**: o site no ar roda a versão anterior. Mensagem com resultado `nada` (ex.: parcela futura, regra 3) não entra na fila.
 
 ## A chave do modelo
 
@@ -79,7 +89,7 @@ Os números 160 e 500 são uma proposta minha, a partir da regra do brief ("ning
 
 ## Log
 
-Uma linha em JSON por chamada, na saída da função (na Vercel, em Logs): `mensagem_id`, `cliente_id`, `quando`, `modelo`, `status` (`ok`, `teto`, `erro_modelo`, `resposta_ilegivel`), `duracao_ms`, `tokens_entrada`, `tokens_saida`, `custo_brl`, o preço usado (`preco_usd_por_milhao`, `data_preco`, `cambio_brl`, `data_cambio`) e `resultado` (`lancou`, `pendencia`, `nada`) com `aviso`. **Fica de fora de propósito:** o texto da mensagem, o lançamento e o motivo devolvidos pelo modelo, nome, telefone, o prompt e a chave. Com o `mensagem_id` se acha o texto no sistema do escritório. Testes: `test/teto.test.js`.
+Uma linha em JSON por chamada, na saída da função (na Vercel, em Logs): `mensagem_id`, `cliente_id`, `quando`, `modelo`, `status` (`ok`, `teto`, `nao_entendido`, com `motivo`), `duracao_ms`, `tokens_entrada`, `tokens_saida`, `custo_brl`, o preço usado (`preco_usd_por_milhao`, `data_preco`, `cambio_brl`, `data_cambio`) e `resultado` (`lancou`, `pendencia`, `nada`, `nao_entendido`) com `aviso`. **Fica de fora de propósito:** o texto da mensagem, o lançamento e o motivo devolvidos pelo modelo, nome, telefone, o prompt e a chave. Com o `mensagem_id` se acha o texto no sistema do escritório. Testes: `test/teto.test.js`.
 
 ## O limite do provedor
 
@@ -87,8 +97,9 @@ O que a página do Google (rate limits, atualizada em 28/10/2026) diz: o limite 
 
 ## O que ainda falta
 
-- A fila de conferência do Tiago e da Aline (a tela) e o eval.
+- O eval: ninguém comparou os lançamentos com o gabarito aprovado. A validação pega o que está fora do plano, não o que está errado dentro dele.
+- Armazenamento e login para a fila antes de publicar.
 - O histórico de lançamentos aprovados do cliente na chamada. As regras 5 e 7 dizem que "o histórico diz", e a versão atual não o envia, então o modelo devolve pendência onde o histórico resolveria (a Fiorino e o pix para o Marcão, nas evidências).
 - O teto por cliente guardado de verdade: hoje o contador fica na memória de cada instância da função (ver "Teto por plano"). Para valer entre instâncias e reinícios precisa de armazenamento, que ainda não tem.
-- Os `pendencias` voltam como texto simples; o formato pedido no prompt era um objeto com `pergunta`. Os testes aceitam as duas formas.
+- Os `pendencias` agora saem sempre como `{pergunta}`; o modelo ainda pode devolver texto solto, e o código normaliza.
 - Evidências do navegador no site publicado: feitas, em `evidencia/navegador-producao.txt` (busca pela chave na página e aba de rede).
