@@ -2,7 +2,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const { tratar, tratarFila } = require("./lib/rota");
+const { tratar, tratarFila, tratarExportar } = require("./lib/rota");
 
 try { process.loadEnvFile(".env"); } catch { /* sem .env: a rota responde 503, sem chave */ }
 
@@ -13,6 +13,7 @@ const porta = Number(process.env.PORT) || 3000;
 http.createServer((req, res) => {
   if (req.url === "/api/lancar") return tratar(req, res);
   if (req.url.split("?")[0] === "/api/fila") return tratarFila(req, res);
+  if (req.url.split("?")[0] === "/api/exportar") return tratarExportar(req, res);
   if (req.method === "GET" && req.url === "/fila") {
     res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
     return res.end(paginaFila);

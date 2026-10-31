@@ -42,6 +42,10 @@
     <button>Entrar</button>
     <p id="quem"></p>
   </form>
+  <div class="acoes">
+    <button type="button" id="baixar" class="sec">Baixar o que foi aprovado (arquivo de importação)</button>
+    <p id="baixou"></p>
+  </div>
   <div class="resumo" id="resumo"></div>
   <div id="lista" style="display:grid;gap:12px"></div>
 </main>
@@ -132,6 +136,18 @@
     $("resumo").replaceChildren(...Object.entries(c.resumo).flatMap(([tipo, estados]) => Object.entries(estados).map(([e, n]) => el("span", NOME[tipo] + " · " + e + ": " + n))));
     $("lista").replaceChildren(...(c.itens.length ? [...c.itens].sort((x, y) => falhas.has(y.id) - falhas.has(x.id)).map(desenhar) : [el("p", "A fila está vazia.")]));
   }
+  // POST entrega só o que ainda não saiu e marca como entregue; o arquivo seguinte não repete linha.
+  $("baixar").onclick = async () => {
+    $("baixou").textContent = "Gerando…";
+    try {
+      const r = await fetch("/api/exportar", { method: "POST", headers: cabecalhos() });
+      if (!r.ok) { $("baixou").textContent = "Não gerou o arquivo (" + (await r.json()).erro + ")."; return; }
+      const texto = await r.text();
+      const a = el("a"); a.href = URL.createObjectURL(new Blob([texto], { type: "text/csv" })); a.download = /filename="([^"]+)"/.exec(r.headers.get("content-disposition") || "")?.[1] || "lancamentos.csv";
+      a.click(); URL.revokeObjectURL(a.href);
+      $("baixou").textContent = "Arquivo baixado com " + (texto.trim().split("\n").length - 1) + " lançamento(s) novo(s).";
+    } catch { $("baixou").textContent = "Sem conexão com o servidor."; }
+  };
   $("entrada").onsubmit = (e) => { e.preventDefault(); guardada.gravar($("chave").value); $("chave").value = ""; carregar(); };
   carregar();
 </script>
