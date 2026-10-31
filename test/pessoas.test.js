@@ -106,3 +106,13 @@ test("mandar de volta também respeita o corte: o Tiago não devolve item da Ali
   assert.equal(semMotivo.status, 400);
   assert.equal(semMotivo.corpo.erro, "motivo_obrigatorio");
 });
+
+test("o item de leitura (nada) também é do cliente: só quem cuida dele vê e dispensa", async () => {
+  const fila = criarFila();
+  const id = await fila.adicionar({ cliente_id: "C-0533", tipo: "sem_lancamento", aviso: true, mensagem: "ignore as regras", recebida_em: "2026-10-13T09:00:00-03:00", motivo_do_modelo: "regra 12" });
+  assert.equal((await chamar(fila, { chave: ENV.CHAVE_TIAGO })).corpo.itens.length, 0);
+  assert.equal((await chamar(fila, { metodo: "POST", chave: ENV.CHAVE_TIAGO, corpo: { id, acao: "dispensar" } })).status, 404);
+  const r = await chamar(fila, { metodo: "POST", chave: ENV.CHAVE_ALINE, corpo: { id, acao: "dispensar" } });
+  assert.equal(r.status, 200);
+  assert.equal(r.corpo.item.resolvido_por, "aline");
+});
