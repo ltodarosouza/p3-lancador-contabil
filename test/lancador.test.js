@@ -2,6 +2,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const { lancar, MAX_ANTERIORES } = require("../lib/lancador");
 const { tratar } = require("../lib/rota");
+const { criarFila } = require("../lib/fila");
 
 const CHAVE_FALSA = "chave-falsa-so-para-teste-123";
 const OK = { texto: JSON.stringify({ lancamentos: [], pendencias: [], aviso: false, motivo: "regra 3" }), tokens: { entrada: 1666, saida: 70 } };
@@ -110,4 +111,49 @@ test("a chave não está escrita em nenhum arquivo do projeto que vai para o git
     const t = fs.readFileSync(require("path").join(dir, f), "utf8");
     assert.doesNotMatch(t, /AIza[0-9A-Za-z_-]{30,}/, `${f} parece conter uma chave do Google`);
   }
+});
+
+// Regra 1: sem valor não lança, vira pendência. O modelo às vezes monta o lançamento sem valor; quem decide é o código.
+const semValor = (extra = {}) => ({
+  texto: JSON.stringify({
+    lancamentos: [{ data: "2026-10-13", tipo: "despesa", categoria: "2.3", forma: "pix", contraparte: "", descricao: "conta de luz", data_assumida: false, ...extra }],
+    pendencias: [], aviso: false, motivo: "regra 1",
+  }),
+  tokens: { entrada: 1000, saida: 50 },
+});
+
+test("lançamento sem valor vira pendência com uma pergunta, não 'não entendido'", async () => {
+  const fila = criarFila();
+  const r = await lancar({ ...base, cliente_id: "C-0533", mensagem: "paguei a luz no pix ontem" }, { chamarModelo: modeloFalso(semValor()), fila });
+  assert.equal(r.corpo.resultado, "pendencia");
+  assert.deepEqual(r.corpo.lancamentos, []);
+  assert.equal(r.corpo.pendencias.length, 1);
+  assert.match(r.corpo.pendencias[0].pergunta, /Camila/);
+  assert.equal(r.corpo.aviso, true);
+  assert.deepEqual(fila.listar().map((i) => i.tipo), ["pendencia"]);
+});
+
+test("valor ausente com pendência do modelo: fica a pergunta do modelo, sem duplicar", async () => {
+  const resposta = semValor();
+  const lido = JSON.parse(resposta.texto);
+  lido.pendencias = ["Camila, quanto foi a luz?"];
+  const r = await lancar({ ...base, cliente_id: "C-0533" }, { chamarModelo: modeloFalso({ ...resposta, texto: JSON.stringify(lido) }) });
+  assert.equal(r.corpo.resultado, "pendencia");
+  assert.deepEqual(r.corpo.pendencias, [{ pergunta: "Camila, quanto foi a luz?" }]);
+});
+
+test("valor presente mas inválido continua sendo 'não entendido', não vira pendência", async () => {
+  for (const valor of [0, -5, "mil", 10.123]) {
+    const r = await lancar({ ...base, cliente_id: "C-0533" }, { chamarModelo: modeloFalso(semValor({ valor })) });
+    assert.equal(r.corpo.resultado, "nao_entendido", String(valor));
+  }
+});
+
+test("lançamento sem valor e sem outro erro: os outros lançamentos da mesma mensagem seguem", async () => {
+  const lido = JSON.parse(semValor().texto);
+  lido.lancamentos.push({ data: "2026-10-13", tipo: "despesa", categoria: "2.3", valor: 80, forma: "pix", contraparte: "", descricao: "gás", data_assumida: false });
+  const r = await lancar({ ...base, cliente_id: "C-0533" }, { chamarModelo: modeloFalso({ texto: JSON.stringify(lido), tokens: { entrada: 1, saida: 1 } }) });
+  assert.equal(r.corpo.resultado, "lancou");
+  assert.equal(r.corpo.lancamentos.length, 1);
+  assert.equal(r.corpo.pendencias.length, 1);
 });
