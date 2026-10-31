@@ -16,7 +16,7 @@ function redisDeMentira() {
     switch (cmd) {
       case "GET": result = kv.get(a[0]) ?? null; break;
       case "SET": if (a[2] === "NX" && kv.has(a[0])) { result = null; break; } kv.set(a[0], a[1]); result = "OK"; break;
-      case "DEL": kv.delete(a[0]); result = 1; break;
+      case "DEL": kv.delete(a[0]); sets.delete(a[0]); result = 1; break; // o DEL do Redis apaga a chave de qualquer tipo
       case "INCR": kv.set(a[0], String(num(a[0]) + 1)); result = num(a[0]); break;
       case "DECR": kv.set(a[0], String(num(a[0]) - 1)); result = num(a[0]); break;
       case "INCRBYFLOAT": kv.set(a[0], String(num(a[0]) + Number(a[1]))); result = kv.get(a[0]); break;
