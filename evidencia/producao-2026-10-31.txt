@@ -1,0 +1,22 @@
+Verificação do site publicado, 31/10/2026, depois do deploy de produção (commit e93e31e).
+Endereço: https://p3-lancador-contabil.vercel.app. As chaves vieram do .env local e não aparecem aqui.
+
+GET  /                                  -> 200
+GET  /api/fila sem chave                -> 401 {"erro":"nao_autenticado"}
+GET  /api/fila chave errada             -> 401 {"erro":"nao_autenticado"}
+GET  /api/painel com a chave do Tiago   -> 403 {"erro":"so_a_denise"}
+GET  /api/painel com a chave da Denise  -> 200
+POST /api/lancar M03 (C-0417, "pix pro marcão 450")   -> pendencia, aviso true, fila ["F-0001"]
+     pergunta: "Nilton, quem é o Marcão e qual o motivo dos 450 do pix?"
+POST /api/lancar M04 (C-0417, com anteriores)         -> pendencia, aviso true, fila ["F-0002"]
+     pergunta: "Nilton, a Fiorino é da empresa?"   (sem histórico conferido do cliente, o modelo pergunta)
+
+O item criado pela função /api/lancar aparece na função /api/fila (funções separadas, mesma fila no Redis):
+fila do Tiago   -> clientes ["C-0417"], 2 itens
+fila da Aline   -> 0 itens
+fila da Denise  -> clientes ["C-0417"], 2 itens
+Aline tenta aprovar F-0002 (da padaria)  -> 404 {"erro":"item_inexistente"}
+GET /api/painel (Denise)  -> 2 mensagens, R$ 0,007859, ninguém passou do teto
+GET /api/exportar (Tiago) -> só o cabeçalho com as dez colunas (nada aprovado ainda)
+
+Os itens F-0001 e F-0002 são mensagens do material (fictícias) e ficaram na fila de produção, aguardando.

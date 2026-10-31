@@ -4,7 +4,7 @@ A mensagem de WhatsApp de um cliente entra, e o sistema devolve o que lançar, o
 
 Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, copiadas sem alterar do material da P3 (fictício e anonimizado).
 
-**No ar:** https://p3-lancador-contabil.vercel.app (página de teste em `/`, rota em `POST /api/lancar`). A chave fica nas variáveis de ambiente da Vercel. **O site no ar roda uma versão anterior** à fila por pessoa, ao arquivo de importação e ao painel: o código novo está neste repositório e só vai para o ar quando o Lucas pedir a publicação.
+**No ar:** https://p3-lancador-contabil.vercel.app (página de teste em `/`, rota em `POST /api/lancar`). A chave fica nas variáveis de ambiente da Vercel. Publicado em produção em 31/10/2026 com a fila por pessoa, o arquivo de importação, o painel e o Redis (commit `e93e31e`). A verificação do site publicado está em `evidencia/producao-2026-10-31.txt`.
 
 ## Onde está cada parte
 
@@ -69,7 +69,7 @@ curl -s -X POST https://p3-lancador-contabil.vercel.app/api/lancar \
 
 A resposta traz `resultado` (`lancou`, `pendencia`, `nada` ou `nao_entendido`), `lancamentos`, `pendencias` (a pergunta de volta, na voz da casa), `aviso`, `motivo` e `tokens`. Para rodar a mesma coisa no seu computador, troque o endereço por `http://localhost:3000/api/lancar` depois de `npm start`. Respostas reais, guardadas quando rodei, estão em `evidencia/endpoint-local.txt` e `evidencia/chamada-1-m10.txt`.
 
-**O que eu não consegui verificar:** em 31/10/2026, no fim da tarde, o site no ar respondeu `modelo_indisponivel` às duas mensagens acima. A versão que está no ar é a anterior, que trata qualquer erro do provedor assim, e o limite do Gemini é por projeto; a explicação provável é a cota diária gasta pelas rodadas do eval, mas não a confirmei. Ou seja, **esta receita contra o endereço no ar eu não vi funcionar hoje**; rodei o mesmo corpo contra o servidor local, com a chave do `.env`. O site no ar só passa a ter a fila por pessoa, o arquivo de importação e o painel quando o código novo for publicado, o que ainda não foi feito.
+**O que vi no ar:** em 31/10/2026, depois da publicação, rodei exatamente as duas mensagens acima contra este endereço. Voltaram `pendencia` com a pergunta de volta (`"Nilton, quem é o Marcão e qual o motivo dos 450 do pix?"` e `"Nilton, a Fiorino é da empresa?"`), e os dois itens apareceram na fila, que é lida por outra função da Vercel: é o Redis dividindo a fila. Mais cedo, no mesmo dia, a versão antiga respondeu `modelo_indisponivel` às mesmas mensagens, provavelmente pela cota diária do Gemini, que eu não conferi no painel. As respostas do modelo podem variar de uma chamada para outra.
 
 ### Para abrir a fila no seu computador
 
@@ -137,7 +137,7 @@ O texto que o cliente escreveu (contraparte e descrição) passa por três cuida
 
 A fila, o contador de uso, as mensagens barradas e o custo do mês ficam num armazém (`lib/armazem.js`). Sem configuração é a memória da instância (testes e `npm start`). Com `KV_REST_API_URL` e `KV_REST_API_TOKEN` no ambiente (ou `UPSTASH_REDIS_REST_URL` e `UPSTASH_REDIS_REST_TOKEN`), é um Redis por HTTP, e aí a fila e o contador valem entre as funções da Vercel e depois de reiniciar. Dois cliques em instâncias diferentes não aprovam o mesmo item duas vezes (o item é fechado com `SET ... NX`), e o contador conta com `INCR`, atômico, desfazendo a contagem da mensagem que o teto barrou.
 
-**O que está provado e o que não está.** O mesmo teste de contrato roda na memória e num Redis de mentira que fala o protocolo REST do Upstash (`test/armazem.test.js`): duas instâncias sobre o mesmo armazém veem a mesma fila, só uma aprovação vale, e o contador não passa do teto. Quebrei o `SET NX` e a desfeita da contagem, e um teste falhou em cada. **Depois, conectei a um Redis de verdade.** Em 31/10/2026 o Lucas criou um Redis no Upstash, ligado ao projeto na Vercel, e `node scripts/prova-armazem.js` rodou o mesmo contrato contra ele (inclusive duas instâncias da fila e do contador sobre o mesmo Redis): terminou em `ok`, com um prefixo só do script, e apagou o que gravou. Para repetir: `vercel env pull .env.local && node scripts/prova-armazem.js`. **O que ainda não foi visto:** o site publicado usando esse Redis, porque o código novo não foi publicado; hoje o site no ar é a versão anterior, com a fila na memória de cada função.
+**O que está provado e o que não está.** O mesmo teste de contrato roda na memória e num Redis de mentira que fala o protocolo REST do Upstash (`test/armazem.test.js`): duas instâncias sobre o mesmo armazém veem a mesma fila, só uma aprovação vale, e o contador não passa do teto. Quebrei o `SET NX` e a desfeita da contagem, e um teste falhou em cada. **Depois, conectei a um Redis de verdade.** Em 31/10/2026 o Lucas criou um Redis no Upstash, ligado ao projeto na Vercel, e `node scripts/prova-armazem.js` rodou o mesmo contrato contra ele (inclusive duas instâncias da fila e do contador sobre o mesmo Redis): terminou em `ok`, com um prefixo só do script, e apagou o que gravou. Para repetir: `vercel env pull .env.local && node scripts/prova-armazem.js`. Depois de publicar, vi o site no ar usando esse Redis: o item criado por `/api/lancar` aparece em `/api/fila`, que é outra função (`evidencia/producao-2026-10-31.txt`).
 
 ## O que o sistema nunca faz sozinho
 
@@ -276,7 +276,6 @@ O que a página do Google (rate limits, atualizada em 28/10/2026) diz: o limite 
 
 ## O que ainda falta
 
-- **Publicar a versão nova.** O site no ar roda a anterior. Só com pedido do Lucas.
 - **Login de verdade** (conta e senha por usuário) para o escritório. Hoje são três chaves de ambiente.
 - **A Denise aprovar o gabarito do eval** e responder as lacunas (`eval/lacunas-para-a-denise.md`); até lá a nota é provisória.
 - **Foto da nota e transcrição de áudio**: fora, com o motivo em `inventario.md`.

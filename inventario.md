@@ -2,7 +2,7 @@
 
 Feito em 31/10/2026, depois das aulas 3.3 a 3.9, antes de fechar a prática. Lista montada a partir do brief (`praticas/p3/brief.md`) e do que está no repositório e no site no ar. Cada "já existe" foi conferido no código, nos testes ou nas evidências; o que não consegui conferir está dito.
 
-**Duas versões.** A primeira (commit `e8e1f3c`) listava nove itens em "ainda vai entrar" e mostrava que o arquivo de importação e o corte por pessoa não existiam. Nos commits seguintes fechei os itens 1, 2, 4, 5, 6, 7 e 8 (cada um com teste escrito antes e quebra de propósito para ver o teste falhar). O item 3, guardar a fila e o contador, fechei só até o código e o teste contra um Redis de mentira; falta um Redis de verdade. O item 9, publicar, só com pedido do Lucas. Esta versão mostra o estado depois disso, e o que sobrou é o que depende de outra pessoa.
+**Duas versões.** A primeira (commit `e8e1f3c`) listava nove itens em "ainda vai entrar" e mostrava que o arquivo de importação e o corte por pessoa não existiam. Nos commits seguintes fechei os itens 1, 2, 4, 5, 6, 7 e 8 (cada um com teste escrito antes e quebra de propósito para ver o teste falhar). O item 3, guardar a fila e o contador, fechei no código e passou contra um Redis de verdade (Upstash, provisionado pelo Lucas). O item 9, publicar, foi feito a pedido do Lucas em 31/10/2026 e verificado no site publicado. Esta versão mostra o estado depois disso, e o que sobrou é o que depende de outra pessoa.
 
 ## 1. O que o brief pede
 
@@ -50,21 +50,19 @@ Do que o brief pede, conferido no código e nos testes (suíte: 116 testes, sem 
 - **Teto por plano**: 160 mensagens no Essencial e 500 no Completo (duas por lançamento do plano, de 80 e 250), proposta minha que a Denise ainda não decidiu. A mensagem barrada não vai ao modelo e fica na fila manual.
 - **Painel da Denise** (`/painel`, só com a chave dela): mensagens, custo do mês e quem passou do teto, a partir do que o sistema contou.
 - **Custo por mensagem em reais**, dos tokens registrados: R$ 0,00485 sem histórico e R$ 0,00495 com, preço de 28/10/2026, câmbio de 30/10/2026. O log tem uma linha por chamada e não leva o texto da mensagem.
-- **Fila e contador num armazém** (memória, ou Redis por HTTP quando o ambiente traz as variáveis). Duas instâncias sobre o mesmo armazém veem a mesma fila e o item só fecha uma vez. **Provado contra um Redis de mentira que fala o protocolo do Upstash e, em 31/10/2026, contra o Redis de verdade (Upstash, ligado ao projeto na Vercel) com `scripts/prova-armazem.js`. O site publicado usando esse Redis ainda não foi visto.**
+- **Fila e contador num armazém** (memória, ou Redis por HTTP quando o ambiente traz as variáveis). Duas instâncias sobre o mesmo armazém veem a mesma fila e o item só fecha uma vez. **Provado contra um Redis de mentira que fala o protocolo do Upstash e, em 31/10/2026, contra o Redis de verdade (Upstash, ligado ao projeto na Vercel) com `scripts/prova-armazem.js`. O site publicado usando esse Redis foi visto (`evidencia/producao-2026-10-31.txt`).**
 - **Isolamento entre clientes na chamada** e **histórico conferido do cliente na chamada** (só o que uma pessoa aprovou ou corrigiu, no máximo 60 linhas).
 - **Provas hostis** no Gemini real: a injeção respondeu `nada` (agora esse `nada` chega à fila); HTML e script aparecem como texto.
 - **Eval**: 23 casos, 20 contam na nota, 3 fora da nota esperando a Denise. O gabarito é meu, ninguém da casa o aprovou. Depois do conserto da regra 1, a única rodada limpa deu 19 de 20 (E05 e E23 passaram); as outras bateram no limite diário do provedor. Detalhe em "Eval" no README.
 - **README** com decisões, custo, teto, limite do provedor, o que o sistema nunca faz sozinho e o que falta; evidências em `evidencia/`.
-- **No ar** em https://p3-lancador-contabil.vercel.app, mas **numa versão antiga**. O código novo está no repositório e só vai para o ar quando o Lucas pedir.
+- **No ar** em https://p3-lancador-contabil.vercel.app, **na versão nova** (publicada em 31/10/2026, commit `e93e31e`). Vi no site publicado: fila fechada sem chave (401), painel só da Denise (403 para o Tiago), o item criado por uma função aparecendo na outra (Redis compartilhado), a Aline sem ver nem aprovar item da padaria (404) e as duas mensagens do `curl` do README devolvendo pendência.
 
 ## 3. O que ainda vai entrar
 
 Só o que depende de outra pessoa; o que dependia só do código está na parte 2.
 
-1. **Publicar a versão nova** e rodar o exemplo do README contra o site no ar. Só quando o Lucas pedir.
-2. **Ver o sistema no ar usando o Redis e as chaves** (já registrados na Vercel em 31/10/2026): só depois da publicação.
-3. **Rodar o `curl` do README contra o endereço no ar**, quando a cota do Gemini permitir.
-4. **A Denise decidir**: o teto de 160 e 500 mensagens, as quatro lacunas do eval (`eval/lacunas-para-a-denise.md`) e aprovar o gabarito.
+1. **Nada que dependa só do código.** A publicação foi feita e verificada em 31/10/2026.
+2. **A Denise decidir**: o teto de 160 e 500 mensagens, as quatro lacunas do eval (`eval/lacunas-para-a-denise.md`) e aprovar o gabarito.
 
 ## 4. O que fica de fora, com o motivo
 
