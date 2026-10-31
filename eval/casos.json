@@ -47,7 +47,8 @@
     },
     "regra": "1 lista 'ontem', 'sexta' e 'semana passada' como datas contadas a partir da mensagem; 'hoje' não está na lista",
     "lacuna": "A regra 1 não diz se 'hoje' é data assumida ou não. Leitura minha, por analogia com 'ontem': não assumida. Confirmar com a Denise; até lá este caso não entra na contagem.",
-    "conta_na_nota": false
+    "conta_na_nota": false,
+    "lacuna_da_regra": "A regra 1 não diz se 'hoje' é data assumida ou não. Leitura minha, por analogia com 'ontem': não assumida. Confirmar com a Denise; até lá este caso não entra na contagem."
   },
   {
     "id": "E03",
@@ -80,7 +81,8 @@
     },
     "regra": "8 (peça é mercadoria, mão de obra é serviço, e a mensagem separa os valores), 4 (quem pagou é cliente, então é receita) e 1 (sem data, assumida)",
     "lacuna": "A regra 4 não define 'cliente'. Assumi que o dono do carro é cliente da oficina. Confirmar com a Denise; até lá este caso não entra na contagem.",
-    "conta_na_nota": false
+    "conta_na_nota": false,
+    "lacuna_da_regra": "A regra 4 não define 'cliente'. Assumi que o dono do carro é cliente da oficina. Confirmar com a Denise; até lá este caso não entra na contagem."
   },
   {
     "id": "E04",
@@ -243,7 +245,8 @@
       ],
       "pendencias": 0,
       "aviso": false
-    }
+    },
+    "lacuna_da_regra": "Com histórico, a categoria do Marquinho (2.12 manutenção ou 2.15 serviços de terceiros) não é decidida pelas regras. Vale o mesmo aviso dos outros: precisa da resposta da Denise. Até lá, a categoria fica fora da comparação com histórico, e isso é uma exclusão declarada, não uma decisão."
   },
   {
     "id": "E11",
@@ -431,7 +434,8 @@
     },
     "regra": "4 (de sócio é aporte) e plano de contas 3.1",
     "lacuna": "Assumi que 'do meu bolso', dito pelo Nilton, é dinheiro de sócio. Confirmar com a Denise.",
-    "conta_na_nota": false
+    "conta_na_nota": false,
+    "lacuna_da_regra": "Assumi que 'do meu bolso', dito pelo Nilton, é dinheiro de sócio. Confirmar com a Denise."
   },
   {
     "id": "E17",
