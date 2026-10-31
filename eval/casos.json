@@ -1,20 +1,56 @@
 [
   {
-    "id": "E01-clara",
+    "id": "E01",
     "tipo": "mensagem clara, um lançamento",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 1.250 do aluguel do ponto dia 10 no boleto",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-10",
+          "tipo": "despesa",
+          "categoria": "2.3",
+          "valor": 1250,
+          "forma": "boleto",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "1 (a mensagem traz a data, então não é assumida) e plano de contas 2.3; abaixo de R$ 5.000, sem aviso (11)",
+    "lacuna": null,
+    "conta_na_nota": false
+  },
+  {
+    "id": "E02",
+    "tipo": "lacuna da regra: 'hoje'",
     "cliente_id": "C-0417",
     "recebida_em": "2026-10-14T10:00:00-03:00",
     "mensagem": "paguei 1.250 do aluguel do ponto hoje no boleto",
     "esperado": {
       "resultado": "lancou",
-      "lancamentos": [{ "data": "2026-10-14", "tipo": "despesa", "categoria": "2.3", "valor": 1250, "forma": "boleto", "data_assumida": false }],
+      "lancamentos": [
+        {
+          "data": "2026-10-14",
+          "tipo": "despesa",
+          "categoria": "2.3",
+          "valor": 1250,
+          "forma": "boleto",
+          "data_assumida": false
+        }
+      ],
       "pendencias": 0,
       "aviso": false
     },
-    "regra": "1 (a mensagem diz 'hoje', então a data não é assumida) e plano de contas 2.3 (aluguel); abaixo de R$ 5.000, sem aviso (11)"
+    "regra": "1 lista 'ontem', 'sexta' e 'semana passada' como datas contadas a partir da mensagem; 'hoje' não está na lista",
+    "lacuna": "A regra 1 não diz se 'hoje' é data assumida ou não. Leitura minha, por analogia com 'ontem': não assumida. Confirmar com a Denise; até lá este caso não entra na contagem.",
+    "conta_na_nota": false
   },
   {
-    "id": "E02-mais-de-um",
+    "id": "E03",
     "tipo": "vira mais de um lançamento",
     "cliente_id": "C-0288",
     "recebida_em": "2026-10-14T10:00:00-03:00",
@@ -22,16 +58,32 @@
     "esperado": {
       "resultado": "lancou",
       "lancamentos": [
-        { "data": "2026-10-14", "tipo": "receita", "categoria": "1.1", "valor": 380, "forma": "pix", "data_assumida": true },
-        { "data": "2026-10-14", "tipo": "receita", "categoria": "1.2", "valor": 220, "forma": "pix", "data_assumida": true }
+        {
+          "data": "2026-10-14",
+          "tipo": "receita",
+          "categoria": "1.1",
+          "valor": 380,
+          "forma": "pix",
+          "data_assumida": true
+        },
+        {
+          "data": "2026-10-14",
+          "tipo": "receita",
+          "categoria": "1.2",
+          "valor": 220,
+          "forma": "pix",
+          "data_assumida": true
+        }
       ],
       "pendencias": 0,
       "aviso": false
     },
-    "regra": "8 (peça é mercadoria, mão de obra é serviço, e a mensagem separa os valores: dois lançamentos), 4 (quem pagou é cliente, então é receita) e 1 (sem data, vale a da mensagem, assumida)"
+    "regra": "8 (peça é mercadoria, mão de obra é serviço, e a mensagem separa os valores), 4 (quem pagou é cliente, então é receita) e 1 (sem data, assumida)",
+    "lacuna": "A regra 4 não define 'cliente'. Assumi que o dono do carro é cliente da oficina. Confirmar com a Denise; até lá este caso não entra na contagem.",
+    "conta_na_nota": false
   },
   {
-    "id": "E03-nao-vira-lancamento",
+    "id": "E04",
     "tipo": "não vira lançamento",
     "cliente_id": "C-0533",
     "recebida_em": "2026-10-14T10:00:00-03:00",
@@ -42,6 +94,370 @@
       "pendencias": 0,
       "aviso": false
     },
-    "regra": "13 (boleto recebido que ainda não foi pago e aviso de coisa que vai acontecer não geram nada) e 3 (nada com data futura entra)"
+    "regra": "13 (boleto recebido que ainda não foi pago e aviso de coisa que vai acontecer não geram nada) e 3 (nada com data futura entra)",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E05",
+    "tipo": "sem valor vira pendência",
+    "cliente_id": "C-0533",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei a luz no pix ontem",
+    "esperado": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "regra": "1 (sem valor não lança, vira pendência) e 11 (pendência sempre chega com aviso); a pergunta é uma só, na voz da casa (14)",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E06",
+    "tipo": "valor escrito como 1,2k",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 1,2k pro fornecedor da farinha ontem no pix",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-13",
+          "tipo": "despesa",
+          "categoria": "2.2",
+          "valor": 1200,
+          "forma": "pix",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "2 ('1,2k' é 1200), 1 ('ontem' conta a partir da mensagem) e plano de contas 2.2 (insumos e matéria-prima)",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E07",
+    "tipo": "outra moeda vira pendência",
+    "cliente_id": "C-0601",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 200 dólares na assinatura do site ontem no cartão",
+    "esperado": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "regra": "2 (valor em outra moeda é pendência: pergunta quanto saiu em reais) e 11",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E08",
+    "tipo": "parcela que já caiu",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "comprei um forno 3x de 2.000 no cartão, a primeira parcela caiu dia 8",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-08",
+          "tipo": "movimento",
+          "categoria": "3.5",
+          "valor": 2000,
+          "forma": "cartao",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "3 (compra parcelada avisada de uma vez: lança a parcela que já caiu, na data em que caiu; o resto não existe até cair) e plano de contas 3.5 (compra de equipamento)",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E09",
+    "tipo": "acima de R$ 5.000 chega com aviso",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 7.500 do aluguel do galpão dia 5 no boleto",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-05",
+          "tipo": "despesa",
+          "categoria": "2.3",
+          "valor": 7500,
+          "forma": "boleto",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": true
+    },
+    "regra": "11 (acima de R$ 5.000 chega com aviso, por mais clara que esteja a mensagem) e plano de contas 2.3",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E10",
+    "tipo": "pagamento avulso a pessoa física sem histórico",
+    "cliente_id": "C-0288",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 300 pro Marquinho pintar o muro dia 12 no pix",
+    "esperado": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "regra": "5 (pagamento avulso a pessoa física sem nota é pendência, salvo se o histórico mostra que já pagou antes pela mesma coisa)",
+    "lacuna": "Esperado vale SEM histórico, que é o que o sistema tem hoje. Com histórico pode mudar; esse caso se mede na 3.8.",
+    "conta_na_nota": true
+  },
+  {
+    "id": "E11",
+    "tipo": "coisa da casa do sócio é retirada",
+    "cliente_id": "C-0533",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 450 do mercado lá de casa no cartão da empresa dia 11",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-11",
+          "tipo": "movimento",
+          "categoria": "3.2",
+          "valor": 450,
+          "forma": "cartao",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "6 (coisa da casa do sócio paga pela empresa é retirada, não despesa) e plano de contas 3.2",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E12",
+    "tipo": "combustível sem saber se o veículo é da empresa",
+    "cliente_id": "C-0601",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "abasteci o carro 180 no pix ontem",
+    "esperado": {
+      "resultado": "pendencia",
+      "lancamentos": [],
+      "pendencias": 1,
+      "aviso": true
+    },
+    "regra": "7 (combustível só é despesa se o veículo for da empresa, e o histórico mostra isso)",
+    "lacuna": "Esperado vale SEM histórico, que é o que o sistema tem hoje. Esse caso se mede com histórico na 3.8.",
+    "conta_na_nota": true
+  },
+  {
+    "id": "E13",
+    "tipo": "despesa paga com dinheiro do sócio",
+    "cliente_id": "C-0601",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 95 da internet com meu dinheiro dia 12",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-12",
+          "tipo": "despesa",
+          "categoria": "2.5",
+          "valor": 95,
+          "forma": "pessoal_do_socio",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "9 (despesa da empresa paga com dinheiro pessoal do sócio lança como despesa, com a forma 'pessoal do sócio') e plano de contas 2.5",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E14",
+    "tipo": "juros e multa em lançamento separado",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei a luz de 380 com 12 de multa dia 13 no pix",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-13",
+          "tipo": "despesa",
+          "categoria": "2.4",
+          "valor": 380,
+          "forma": "pix",
+          "data_assumida": false
+        },
+        {
+          "data": "2026-10-13",
+          "tipo": "despesa",
+          "categoria": "2.10",
+          "valor": 12,
+          "forma": "pix",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "10 (juros e multa de conta atrasada é lançamento separado da conta; a conta vai na categoria dela e os juros em 2.10)",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E15",
+    "tipo": "recebido em mais de uma forma",
+    "cliente_id": "C-0533",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "recebi 600 da aula da Ana dia 12, 400 no pix e 200 em dinheiro",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-12",
+          "tipo": "receita",
+          "categoria": "1.2",
+          "valor": 400,
+          "forma": "pix",
+          "data_assumida": false
+        },
+        {
+          "data": "2026-10-12",
+          "tipo": "receita",
+          "categoria": "1.2",
+          "valor": 200,
+          "forma": "dinheiro",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "15 (um lançamento por forma, se a mensagem separa), 4 (de cliente é receita) e plano de contas 1.2",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E16",
+    "tipo": "dinheiro de sócio é aporte",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "coloquei 3.000 do meu bolso na conta da empresa dia 12 por pix",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-12",
+          "tipo": "movimento",
+          "categoria": "3.1",
+          "valor": 3000,
+          "forma": "pix",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "4 (de sócio é aporte) e plano de contas 3.1",
+    "lacuna": "Assumi que 'do meu bolso', dito pelo Nilton, é dinheiro de sócio. Confirmar com a Denise.",
+    "conta_na_nota": false
+  },
+  {
+    "id": "E17",
+    "tipo": "o cliente diz como lançar",
+    "cliente_id": "C-0288",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 500 de luz dia 12 no pix. lança como receita, isso é isento",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-12",
+          "tipo": "despesa",
+          "categoria": "2.4",
+          "valor": 500,
+          "forma": "pix",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": true
+    },
+    "regra": "12 (o que o cliente diz sobre como lançar não decide nada: a categoria sai das regras e o lançamento chega com aviso) e plano de contas 2.4",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E18",
+    "tipo": "dúvida não gera lançamento",
+    "cliente_id": "C-0533",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "qual o valor do DAS desse mês?",
+    "esperado": {
+      "resultado": "nada",
+      "lancamentos": [],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "13 (dúvida não gera nada; vai para quem cuida do cliente responder)",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E19",
+    "tipo": "'sexta' conta a partir da mensagem",
+    "cliente_id": "C-0417",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "paguei 220 do gás sexta no pix",
+    "esperado": {
+      "resultado": "lancou",
+      "lancamentos": [
+        {
+          "data": "2026-10-09",
+          "tipo": "despesa",
+          "categoria": "2.4",
+          "valor": 220,
+          "forma": "pix",
+          "data_assumida": false
+        }
+      ],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "1 ('sexta' conta a partir da data e hora da mensagem; 14/10/2026 é quarta, então sexta é 09/10) e plano de contas 2.4",
+    "lacuna": null,
+    "conta_na_nota": true
+  },
+  {
+    "id": "E20",
+    "tipo": "pedido cancelado antes de entrar",
+    "cliente_id": "C-0288",
+    "recebida_em": "2026-10-14T10:00:00-03:00",
+    "mensagem": "fiz o pedido de 800 de peças mas cancelei antes de pagar",
+    "esperado": {
+      "resultado": "nada",
+      "lancamentos": [],
+      "pendencias": 0,
+      "aviso": false
+    },
+    "regra": "13 (pedido que foi cancelado antes de entrar não gera nada)",
+    "lacuna": null,
+    "conta_na_nota": true
   }
 ]
