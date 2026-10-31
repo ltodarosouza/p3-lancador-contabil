@@ -6,39 +6,96 @@ Material usado: `instrucoes.md` é o plano de contas e as 15 regras da casa, cop
 
 **No ar:** https://p3-lancador-contabil.vercel.app (página de teste em `/`, rota em `POST /api/lancar`). A chave fica nas variáveis de ambiente da Vercel. **O site no ar roda uma versão anterior** à fila por pessoa, ao arquivo de importação e ao painel: o código novo está neste repositório e só vai para o ar quando o Lucas pedir a publicação.
 
-## Como rodar
+## Onde está cada parte
+
+1. **As decisões:** "Decisões" logo abaixo.
+2. **O que ficou de fora e por quê:** "O que ficou de fora e por quê" abaixo, e `inventario.md`, que lista o que o brief pede, o que existe, o que falta e cada corte com o motivo.
+3. **Quanto custaria e onde está o teto:** "Custo por mensagem", "Custo de cada mensagem, em reais" e "Teto por plano".
+4. **O que o eval mede e quanto deu:** "Eval" e "Histórico na chamada (3.8)"; os casos em `eval/casos.json` e as saídas em `evidencia/`.
+5. **O que o sistema nunca faz sozinho, incluindo o que acontece quando uma mensagem tenta mandar nele:** "O que o sistema nunca faz sozinho".
+
+E as três receitas para quem nunca viu o sistema, logo abaixo: rodar os testes, rodar o eval de novo e mandar mensagens ao sistema.
+
+## Receitas
+
+Nenhuma delas precisa de senha ou usuário de ninguém, e nenhuma chave está neste repositório.
+
+### 1. Rodar os testes
 
 ```bash
-cp .env.example .env        # depois preencha GEMINI_API_KEY no .env; o .env está no .gitignore
 npm test                    # 116 testes, sem rede, sem chave de modelo e sem senha de ninguém
-npm start                   # http://localhost:3000; a fila em /fila, o painel em /painel
 ```
 
-Para abrir a fila no seu computador, ponha três chaves de teste no `.env` (as do `.env.example`, qualquer texto com 16 caracteres ou mais, uma diferente da outra, sem usar senha sua). Quem confere sem ter chave nenhuma roda os testes: a prova de que o Tiago não vê os clientes da Aline está em `test/pessoas.test.js` e roda com chaves que só existem dentro do teste.
-
-## Exemplo com `curl` (sem credenciais)
-
-O corpo leva o código do cliente, a mensagem e a data em que ela foi enviada. Quem é o cliente e qual o plano dele sai da tabela do sistema (`dados/clientes.json`), não do que a requisição diz.
-
-Primeira mensagem do Nilton (`C-0417`):
+Os dois que o brief pede, separados, para rodar sozinhos:
 
 ```bash
-curl -s -X POST http://localhost:3000/api/lancar \
-  -H 'content-type: application/json' \
-  -d '{"cliente_id":"C-0417","mensagem":"pix pro marcão 450","recebida_em":"2026-10-03T18:05:00-03:00"}'
+node --test test/pessoas.test.js     # o Tiago não alcança os clientes da Aline e a Aline não alcança os do Tiago; a Denise vê todos
+node --test test/isolamento.test.js  # uma mensagem anterior de outro cliente é recusada antes de chegar ao modelo
 ```
 
-Segunda mensagem seguida, do mesmo cliente. O modelo não guarda nada entre chamadas, então quem chama manda as mensagens anteriores (no máximo 5, cada uma com o `cliente_id` do mesmo cliente; de outro cliente, ou sem dono, a chamada é recusada com `anteriores_de_outro_cliente`) como contexto:
+As chaves de pessoa que esses testes usam existem só dentro do arquivo de teste. Nenhum teste chama o Gemini.
+
+### 2. Rodar o eval de novo
+
+O eval chama o modelo de verdade, então precisa de uma chave do Gemini **sua** (grátis no Google AI Studio). Ela vai no `.env`, que está no `.gitignore`:
 
 ```bash
-curl -s -X POST http://localhost:3000/api/lancar \
-  -H 'content-type: application/json' \
-  -d '{"cliente_id":"C-0417","mensagem":"abasteci a fiorino sábado 250 no cartão","recebida_em":"2026-10-05T09:34:00-03:00","anteriores":[{"cliente_id":"C-0417","recebida_em":"2026-10-03T18:05:00-03:00","texto":"pix pro marcão 450"}]}'
+cp .env.example .env        # preencha só GEMINI_API_KEY; o resto pode ficar vazio para o eval
+node scripts/eval.js minha-rodada                    # sem histórico
+EVAL_HISTORICO=1 node scripts/eval.js minha-rodada   # com o histórico do cliente na chamada
 ```
 
-A resposta traz `lancamentos`, `pendencias` (a pergunta de volta, na voz da casa), `aviso`, `motivo` e `tokens` (entrada e saída). Respostas reais estão em `evidencia/endpoint-local.txt` e `evidencia/chamada-1-m10.txt`.
+São 23 casos, 20 contam na nota; a pausa é de 4,5 s entre casos, então uma rodada leva uns 3 minutos. Compara por código, caso a caso, e imprime `PASSARAM n de 20`. O resultado fica em `evidencia/eval-minha-rodada.json`. O plano gratuito tem 15 requisições por minuto e 500 por dia: se a cota estiver gasta, o caso aparece como `nao_rodado_429`, não como erro de lançamento. O eval oscila sozinho entre rodadas (ver "Eval"), então um ou dois casos de diferença é ruído.
 
-Erros: `400` (corpo ou mensagem inválidos), `405` (só POST), `422` (cliente desconhecido), `429` (teto do plano) e `503` (sem chave configurada). **Falha do modelo não é mais erro 502:** vira resposta `200` com `resultado: "nao_entendido"` e item na fila, com a mensagem original. Nenhuma resposta devolve detalhe do modelo.
+### 3. Mandar uma mensagem ao sistema no ar, e duas seguidas
+
+O endereço é o do sistema no ar, `https://p3-lancador-contabil.vercel.app/api/lancar`. O corpo leva o código do cliente, a mensagem e quando ela foi enviada; **de que cliente é a mensagem se diz em `cliente_id`**, e quem é o cliente e o plano dele saem da tabela do sistema (`dados/clientes.json`), não do que a requisição diz. Os quatro clientes do material são `C-0417` (padaria, Nilton), `C-0288` (oficina, Rubens), `C-0533` (pilates, Camila) e `C-0601` (Jé Modas, Jéssica).
+
+Primeira mensagem do Nilton, do material (M03):
+
+```bash
+curl -s -X POST https://p3-lancador-contabil.vercel.app/api/lancar \
+  -H 'content-type: application/json' \
+  -d '{"cliente_id":"C-0417","mensagem_id":"M03","mensagem":"pix pro marcão 450","recebida_em":"2026-10-03T18:05:00-03:00"}'
+```
+
+Uma segunda mensagem seguida, **do mesmo cliente**. O modelo não guarda nada entre chamadas, então quem chama manda as anteriores em `anteriores` (no máximo 5, cada uma com o `cliente_id` do mesmo cliente; de outro cliente, ou sem dono, a chamada é recusada com `anteriores_de_outro_cliente`):
+
+```bash
+curl -s -X POST https://p3-lancador-contabil.vercel.app/api/lancar \
+  -H 'content-type: application/json' \
+  -d '{"cliente_id":"C-0417","mensagem_id":"M04","mensagem":"abasteci a fiorino sábado 250 no cartão","recebida_em":"2026-10-05T09:34:00-03:00","anteriores":[{"cliente_id":"C-0417","recebida_em":"2026-10-03T18:05:00-03:00","texto":"pix pro marcão 450"}]}'
+```
+
+A resposta traz `resultado` (`lancou`, `pendencia`, `nada` ou `nao_entendido`), `lancamentos`, `pendencias` (a pergunta de volta, na voz da casa), `aviso`, `motivo` e `tokens`. Para rodar a mesma coisa no seu computador, troque o endereço por `http://localhost:3000/api/lancar` depois de `npm start`. Respostas reais, guardadas quando rodei, estão em `evidencia/endpoint-local.txt` e `evidencia/chamada-1-m10.txt`.
+
+**O que eu não consegui verificar:** em 31/10/2026, no fim da tarde, o site no ar respondeu `modelo_indisponivel` às duas mensagens acima. A versão que está no ar é a anterior, que trata qualquer erro do provedor assim, e o limite do Gemini é por projeto; a explicação provável é a cota diária gasta pelas rodadas do eval, mas não a confirmei. Ou seja, **esta receita contra o endereço no ar eu não vi funcionar hoje**; rodei o mesmo corpo contra o servidor local, com a chave do `.env`. O site no ar só passa a ter a fila por pessoa, o arquivo de importação e o painel quando o código novo for publicado, o que ainda não foi feito.
+
+### Para abrir a fila no seu computador
+
+Ponha três chaves de teste no `.env` (`CHAVE_TIAGO`, `CHAVE_ALINE`, `CHAVE_DENISE`: qualquer texto com 16 caracteres ou mais, uma diferente da outra, sem usar senha sua), rode `npm start` e abra `http://localhost:3000/fila`; a página pede a chave. O painel da Denise fica em `/painel`.
+
+## Decisões
+
+- **O modelo.** Gemini 3.5 Flash-Lite, chamado por API. Escolhi por custo: um lançamento custa uns R$ 0,005 no preço pago (ver "Custo"), e o brief diz que acima de uns centavos o negócio não fecha. No plano gratuito, que uso para testar, o custo real é zero, mas o preço de decisão é o pago, com data. O limite por minuto e por dia do plano gratuito é apertado, e o sistema espera, tenta de novo e, se não passar, deixa a mensagem na fila para olhar à mão.
+- **É um workflow, não um agente.** O caminho é sempre o mesmo: ler a mensagem, validar, pôr na fila, uma pessoa confere. O modelo só lê e devolve texto em JSON; ele não tem função nenhuma para chamar. O que vale como lançamento, o aviso, a data assumida, o teto e o corte por cliente são decididos em código, e cada um tem teste.
+- **Nada vira lançamento sem uma pessoa.** Falha do modelo, resposta ilegível ou fora do plano vai para a fila como "não entendido", com o motivo e o que fazer. Sem valor, vira pergunta, não chute.
+- **Só o histórico conferido, só do próprio cliente.** A ideia de aprender com os 140 clientes ao mesmo tempo foi deixada de fora (ver abaixo).
+- **Chaves por pessoa, não login.** Quem confere não tem usuário nem senha, e senha não vai para um repositório público. Três chaves de ambiente dizem quem é a pessoa, e uma tabela diz o que cada uma vê.
+- **O teto é de 2 mensagens por lançamento do plano** (160 no Essencial, 500 no Completo). É proposta minha; a Denise ainda não decidiu.
+- **O gabarito do eval é meu.** Escrevi o esperado antes de rodar, mas a Denise não o aprovou, e três casos ficam fora da nota esperando a resposta dela. O número é provisório.
+
+## O que ficou de fora e por quê
+
+Cada corte tem o motivo escrito em `inventario.md`. Em resumo:
+
+- **Foto da nota:** o material não traz nenhuma (não dá para anonimizar nota fiscal), então não haveria como medir se a leitura acerta.
+- **Transcrever áudio:** o material já traz os áudios transcritos, e o sistema lê esse texto; receber o arquivo de áudio não está no brief.
+- **Aprender com os 140 clientes de uma vez:** contradiz o isolamento entre clientes.
+- **Login com conta e senha:** fica de fora pelo motivo acima; entram as três chaves.
+- **Busca no histórico por mês ou palavra, e fila de limite entre clientes:** só desenho, sem falha medida que justifique.
+- **Tela bonita e botão de copiar a pergunta:** a pergunta já sai pronta; o acabamento fica para depois.
+- **O que o brief já tira:** WhatsApp, conciliação, nota fiscal eletrônica, ligação com o sistema contábil e cobrança.
 
 ## Validação, fila e falhas (aula 3.5)
 
@@ -82,7 +139,7 @@ A fila, o contador de uso, as mensagens barradas e o custo do mês ficam num arm
 
 **O que está provado e o que não está.** O mesmo teste de contrato roda na memória e num Redis de mentira que fala o protocolo REST do Upstash (`test/armazem.test.js`): duas instâncias sobre o mesmo armazém veem a mesma fila, só uma aprovação vale, e o contador não passa do teto. Quebrei o `SET NX` e a desfeita da contagem, e um teste falhou em cada. **Eu não conectei isto a um Redis de verdade**: não existe nenhum provisionado para este projeto. Enquanto isso não for feito, o site publicado seguiria com a fila na memória de cada função, e as funções `/api/lancar` e `/api/fila` não dividiriam a mesma fila.
 
-## O que o sistema nunca faz sozinho (primeira versão)
+## O que o sistema nunca faz sozinho
 
 O modelo só devolve um texto em JSON; ele não tem função nenhuma para chamar. Quem recebe esse texto é o código, que confere e põe na fila como "aguardando". O que muda o estado é uma rota separada (`POST /api/fila`), acionada por uma pessoa.
 
