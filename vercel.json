@@ -8,6 +8,9 @@
     },
     "api/exportar.js": {
       "includeFiles": "{lib/**,dados/**}"
+    },
+    "api/painel.js": {
+      "includeFiles": "{lib/**,dados/**}"
     }
   }
 }

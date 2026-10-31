@@ -52,3 +52,9 @@ test("a tela entra com a chave da pessoa no cabeçalho e não manda mais 'quem' 
   assert.doesNotMatch(pagina, /quem: "/);
   assert.doesNotMatch(pagina, /localStorage/, "a chave fica só na aba, não no navegador para sempre");
 });
+
+test("o painel da Denise lê tudo com textContent e não guarda a chave em lugar nenhum", () => {
+  const pagina = fs.readFileSync(path.join(__dirname, "..", "public", "painel.html"), "utf8");
+  assert.match(pagina, /\/api\/painel/);
+  assert.doesNotMatch(pagina, /innerHTML|localStorage|sessionStorage/);
+});

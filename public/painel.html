@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel da Denise — Prado Contabilidade</title>
+<style>
+  :root { color-scheme: light dark; --fundo: #f6f7f4; --papel: #fff; --tinta: #1d2b24; --suave: #5c6b63; --linha: #d9dfd9; --acento: #1f6b4f; --aviso: #8a5a00; }
+  @media (prefers-color-scheme: dark) { :root { --fundo: #131a16; --papel: #1b241f; --tinta: #e8efe9; --suave: #9fb0a6; --linha: #2c3a32; --acento: #5fc79b; --aviso: #e0b050; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--tinta); font: 16px/1.55 system-ui, sans-serif; }
+  main { width: min(100% - 32px, 960px); margin: 32px auto 64px; display: grid; gap: 16px; }
+  h1 { font-size: 24px; margin: 0; } p { margin: 0; color: var(--suave); }
+  form { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+  input, button { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--linha); background: var(--papel); color: var(--tinta); min-height: 40px; }
+  button { background: var(--acento); color: #fff; border-color: transparent; font-weight: 600; cursor: pointer; }
+  .tabela { overflow-x: auto; background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--linha); white-space: nowrap; }
+  th { color: var(--suave); font-weight: 600; font-size: 13px; } td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: 0; }
+  .passou { color: var(--aviso); font-weight: 600; }
+  :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Painel da Denise</h1>
+  <p>Quanto o mês teria custado, no preço pago do modelo, e quem passou do teto de mensagens do plano.</p>
+  <form id="entrada" autocomplete="off">
+    <label>Sua chave <input id="chave" type="password" style="width:16rem" required></label>
+    <label>Mês <input id="mes" type="month"></label>
+    <button>Ver</button>
+  </form>
+  <p id="aviso"></p>
+  <div class="tabela" id="tabela" hidden>
+    <table>
+      <thead><tr><th>Cliente</th><th>Plano</th><th class="n">Teto</th><th class="n">Mensagens</th><th class="n">Barradas</th><th class="n">Custo (R$)</th><th></th></tr></thead>
+      <tbody id="linhas"></tbody>
+      <tfoot><tr><th colspan="3">Total do mês</th><th class="n" id="total-msgs"></th><th></th><th class="n" id="total-custo"></th><th></th></tr></tfoot>
+    </table>
+  </div>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, texto, cls) => { const e = document.createElement(tag); e.textContent = texto; if (cls) e.className = cls; return e; };
+  const reais = (v) => Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+  let chave = ""; // só nesta página, na memória; não fica guardada em lugar nenhum
+
+  async function ver() {
+    const mes = $("mes").value;
+    const r = await fetch("/api/painel" + (mes ? "?mes=" + encodeURIComponent(mes) : ""), { headers: { authorization: "Bearer " + chave } });
+    const c = await r.json();
+    if (!r.ok) {
+      $("tabela").hidden = true;
+      $("aviso").textContent = { nao_autenticado: "A chave não vale.", so_a_denise: "Este painel é só da Denise.", fila_sem_chaves: "O servidor ainda não tem as chaves.", mes_invalido: "Mês inválido." }[c.erro] || "Não deu para ler o painel (" + c.erro + ").";
+      return;
+    }
+    $("mes").value = c.mes;
+    $("aviso").textContent = c.passaram_do_teto.length ? "Passaram do teto em " + c.mes + ": " + c.passaram_do_teto.join(", ") + ". Estão no plano errado." : "Ninguém passou do teto em " + c.mes + ".";
+    $("linhas").replaceChildren(...c.clientes.map((l) => {
+      const tr = el("tr");
+      tr.append(el("td", l.cliente_id + " · " + l.empresa), el("td", l.plano), el("td", l.teto, "n"), el("td", l.mensagens, "n"), el("td", l.barradas, "n"), el("td", reais(l.custo_brl), "n"), el("td", l.passou_do_teto ? "passou do teto" : "", "passou"));
+      return tr;
+    }));
+    $("total-msgs").textContent = c.mensagens_total;
+    $("total-custo").textContent = reais(c.custo_total_brl);
+    $("tabela").hidden = false;
+  }
+  $("entrada").onsubmit = (e) => { e.preventDefault(); chave = $("chave").value; ver(); };
+</script>
+</body>
+</html>
