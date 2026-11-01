@@ -4,50 +4,39 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fila de conferência — Prado Contabilidade</title>
-<style>
-  :root { color-scheme: light dark; --fundo: #f6f7f4; --papel: #fff; --tinta: #1d2b24; --suave: #5c6b63; --linha: #d9dfd9; --acento: #1f6b4f; --aviso: #8a5a00; --erro: #a8281e; }
-  @media (prefers-color-scheme: dark) { :root { --fundo: #131a16; --papel: #1b241f; --tinta: #e8efe9; --suave: #9fb0a6; --linha: #2c3a32; --acento: #5fc79b; --aviso: #e0b050; --erro: #f08a80; } }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--fundo); color: var(--tinta); font: 16px/1.55 system-ui, sans-serif; }
-  main { width: min(100% - 32px, 960px); margin: 32px auto 64px; display: grid; gap: 16px; }
-  h1 { font-size: 24px; margin: 0; } h2 { font-size: 16px; margin: 0; }
-  p { margin: 0; color: var(--suave); }
-  .resumo { display: flex; flex-wrap: wrap; gap: 8px; }
-  .resumo span, .marca { font-size: 13px; padding: 2px 10px; border-radius: 99px; border: 1px solid var(--linha); background: var(--papel); }
-  .marca.aviso { color: var(--aviso); border-color: var(--aviso); font-weight: 600; }
-  .item { background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 16px; display: grid; gap: 12px; grid-template-columns: 1fr; }
-  @media (min-width: 720px) { .item { grid-template-columns: 1fr 1fr; } }
-  .item .topo { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  blockquote { margin: 0; padding: 12px; border-left: 3px solid var(--linha); background: var(--fundo); border-radius: 0 8px 8px 0; overflow-wrap: anywhere; }
-  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font-size: 14px; }
-  dt { color: var(--suave); } dd { margin: 0; overflow-wrap: anywhere; }
-  .acoes { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
-  input, select, button { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--linha); background: var(--papel); color: var(--tinta); min-height: 40px; }
-  input { width: 9.5rem; }
-  button { background: var(--acento); color: #fff; border-color: transparent; font-weight: 600; cursor: pointer; }
-  button.sec { background: var(--papel); color: var(--tinta); border-color: var(--linha); }
-  button:disabled { opacity: .55; cursor: progress; }
-  .estado { grid-column: 1 / -1; font-weight: 600; }
-  .estado.salvando { color: var(--suave); } .estado.salvo { color: var(--acento); } .estado.falhou { color: var(--erro); }
-  .item:has(.estado.falhou) { border-color: var(--erro); }
-  :focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
-</style>
+<link rel="stylesheet" href="/estilo.css">
 </head>
 <body>
-<main>
-  <h1>Fila de conferência</h1>
-  <p>Lançamentos para aprovar ou corrigir, perguntas prontas e o que o sistema não conseguiu ler, cada um com a mensagem original ao lado.</p>
-  <form id="entrada" class="acoes" autocomplete="off">
-    <label><span class="marca">Sua chave</span> <input id="chave" type="password" style="width:16rem" required></label>
-    <button>Entrar</button>
-    <p id="quem"></p>
-  </form>
-  <div class="acoes">
-    <button type="button" id="baixar" class="sec">Baixar o que foi aprovado (arquivo de importação)</button>
-    <p id="baixou"></p>
+<header class="topo-site">
+  <div class="miolo">
+    <a class="marca-site" href="/"><span class="selo" aria-hidden="true">P</span><span>Prado Contabilidade<small>Lançador de mensagens</small></span></a>
+    <nav class="menu" aria-label="Telas">
+      <a href="/">Lançador</a>
+      <a href="/fila" aria-current="page">Fila</a>
+      <a href="/painel">Painel</a>
+    </nav>
   </div>
-  <div class="resumo" id="resumo"></div>
-  <div id="lista" style="display:grid;gap:12px"></div>
+</header>
+
+<main>
+  <div class="cabecalho">
+    <span class="sobre">Tiago, Aline e Denise</span>
+    <h1>Fila de conferência</h1>
+    <p>Lançamentos para aprovar ou corrigir, perguntas prontas e o que o sistema não conseguiu ler, cada um com a mensagem original ao lado. Nada vira lançamento sem a sua conferência.</p>
+  </div>
+  <form id="entrada" class="cartao" autocomplete="off">
+    <div class="entrada-chave">
+      <label class="campo">Sua chave <input id="chave" type="password" required></label>
+      <button class="botao">Entrar</button>
+    </div>
+    <p id="quem" class="nota"></p>
+  </form>
+  <div class="ferramentas">
+    <div class="resumo" id="resumo"></div>
+    <button type="button" id="baixar" class="botao sec">Baixar o que foi aprovado (arquivo de importação)</button>
+    <p id="baixou" class="nota"></p>
+  </div>
+  <div class="lista" id="lista"></div>
 </main>
 <script>
   const $ = (id) => document.getElementById(id);
@@ -84,16 +73,16 @@
   }
 
   function desenhar(i) {
-    const item = el("article", undefined, "item");
+    const item = el("article", undefined, "item t-" + i.tipo + (i.aviso ? " com-aviso" : "") + (i.estado !== "aguardando" ? " encerrado" : ""));
     const topo = el("div", undefined, "topo");
-    topo.append(el("h2", NOME[i.tipo]), el("span", i.cliente_id + (i.mensagem_id ? " · " + i.mensagem_id : ""), "marca"), el("span", ESTADO[i.estado], "marca"));
+    topo.append(el("h2", NOME[i.tipo]), el("span", i.cliente_id + (i.mensagem_id ? " · " + i.mensagem_id : ""), "marca"), el("span", ESTADO[i.estado], "marca" + (i.estado === "aprovado" || i.estado === "corrigido" ? " ok" : i.estado === "aguardando" ? " info" : "")));
     if (i.aviso || falhas.has(i.id)) topo.append(el("span", "ler com atenção", "marca aviso"));
     if (i.lancamento?.data_assumida) topo.append(el("span", "data assumida", "marca aviso"));
     item.append(topo);
-    const orig = el("blockquote"); orig.append(el("p", "Mensagem original"), el("div", i.mensagem)); item.append(orig);
-    const dir = el("div");
+    const orig = el("blockquote"); orig.append(el("span", "Mensagem original"), el("div", i.mensagem)); item.append(orig);
+    const dir = el("div", undefined, "lado");
     if (i.tipo === "lancamento") {
-      const l = i.lancamento, dl = el("dl");
+      const l = i.lancamento, dl = el("dl", undefined, "dados");
       [["Data", l.data + (l.data_assumida ? " (assumida: a mensagem não diz a data)" : "")], ["Tipo", l.tipo], ["Categoria", l.categoria], ["Valor", reais(l.valor)], ["Forma", l.forma], ["Com quem", l.contraparte || "—"], ["Descrição", l.descricao || "—"]].forEach(([k, v]) => dl.append(el("dt", k), el("dd", v)));
       dir.append(dl);
     } else if (i.tipo === "pendencia") dir.append(el("p", "Pergunta pronta para mandar ao cliente:"), el("div", i.pergunta));
@@ -108,11 +97,11 @@
       const acoes = el("div", undefined, "acoes");
       const campos = {};
       [["data", "Data (AAAA-MM-DD)"], ["valor", "Valor"], ["categoria", "Categoria"], ["forma", "Forma"]].forEach(([k, rotulo]) => {
-        const lab = el("label"); lab.append(el("span", rotulo, "marca"));
+        const lab = el("label", undefined, "campo"); lab.append(el("span", rotulo));
         const inp = el("input"); inp.placeholder = String(i.lancamento[k]); campos[k] = inp; lab.append(inp); acoes.append(lab);
       });
-      const motivo = el("input"); motivo.placeholder = "Motivo, se mandar de volta"; motivo.style.width = "14rem";
-      const aprovar = el("button", "Aprovar"), corrigir = el("button", "Corrigir e salvar", "sec"), devolver = el("button", "Mandar de volta", "sec");
+      const motivoLab = el("label", undefined, "campo largo"), motivo = el("input"); motivo.placeholder = "Só se for mandar de volta"; motivoLab.append(el("span", "Motivo"), motivo);
+      const aprovar = el("button", "Aprovar", "botao"), corrigir = el("button", "Corrigir e salvar", "botao sec"), devolver = el("button", "Mandar de volta", "botao perigo");
       aprovar.onclick = () => agir({ id: i.id, acao: "aprovar" }, item, [aprovar, corrigir, devolver]);
       devolver.onclick = () => {
         if (!motivo.value.trim()) { falhas.set(i.id, "Não salvou: diga o motivo para mandar de volta."); return carregar(); }
@@ -122,15 +111,15 @@
         const mudou = {}; for (const [k, inp] of Object.entries(campos)) if (inp.value.trim()) mudou[k] = k === "valor" ? Number(inp.value.replace(",", ".")) : inp.value.trim();
         agir({ id: i.id, acao: "corrigir", campos: mudou }, item, [aprovar, corrigir, devolver]);
       };
-      acoes.append(motivo, aprovar, corrigir, devolver); item.append(acoes);
+      acoes.append(motivoLab, aprovar, corrigir, devolver); item.append(acoes);
     }
     if (i.tipo === "sem_lancamento" && i.estado === "aguardando") {
-      const acoes = el("div", undefined, "acoes"), dispensar = el("button", "Já vi, dispensar", "sec");
+      const acoes = el("div", undefined, "acoes"), dispensar = el("button", "Já vi, dispensar", "botao sec");
       dispensar.onclick = () => agir({ id: i.id, acao: "dispensar" }, item, [dispensar]);
       acoes.append(dispensar); item.append(acoes);
     }
-    if (i.devolucao) item.append(el("p", "Mandado de volta por " + i.devolucao.por + ": " + i.devolucao.motivo));
-    if (i.correcao) item.append(el("p", "Corrigido por " + i.correcao.por + ": " + Object.entries(i.correcao.campos).map(([k, v]) => k + " " + v.de + " → " + v.para).join("; ")));
+    if (i.devolucao) item.append(el("p", "Mandado de volta por " + i.devolucao.por + ": " + i.devolucao.motivo, "historico"));
+    if (i.correcao) item.append(el("p", "Corrigido por " + i.correcao.por + ": " + Object.entries(i.correcao.campos).map(([k, v]) => k + " " + v.de + " → " + v.para).join("; "), "historico"));
     if (falhas.has(i.id)) estado(item, falhas.get(i.id), "falhou");
     else if (salvoAgora === i.id) estado(item, "Salvo.", "salvo");
     return item;
@@ -145,8 +134,8 @@
       return;
     }
     $("quem").textContent = "Você entrou como " + c.voce + ".";
-    $("resumo").replaceChildren(...Object.entries(c.resumo).flatMap(([tipo, estados]) => Object.entries(estados).map(([e, n]) => el("span", NOME[tipo] + " · " + e + ": " + n))));
-    $("lista").replaceChildren(...(c.itens.length ? [...c.itens].sort((x, y) => falhas.has(y.id) - falhas.has(x.id)).map(desenhar) : [el("p", "A fila está vazia.")]));
+    $("resumo").replaceChildren(...Object.entries(c.resumo).flatMap(([tipo, estados]) => Object.entries(estados).map(([e, n]) => el("span", NOME[tipo] + " · " + e + ": " + n, "marca" + (e === "aguardando" ? " info" : "")))));
+    $("lista").replaceChildren(...(c.itens.length ? [...c.itens].sort((x, y) => falhas.has(y.id) - falhas.has(x.id)).map(desenhar) : [el("p", "A fila está vazia. Quando uma mensagem for lida no Lançador, ela aparece aqui.", "vazio")]));
   }
   // POST entrega só o que ainda não saiu e marca como entregue; o arquivo seguinte não repete linha.
   $("baixar").onclick = async () => {
